@@ -77,69 +77,85 @@ function computeCriteriaScores(reviews: Record<string, unknown>[]): CriterionSco
 }
 
 async function fetchReviewCountsBySchool(): Promise<Map<string, number>> {
-  const db = createServerClient();
-  const { data } = await db.from("reviews").select("school_slug").eq("status", "approved");
-  const map = new Map<string, number>();
-  for (const row of data ?? []) {
-    map.set(row.school_slug, (map.get(row.school_slug) ?? 0) + 1);
+  try {
+    const db = createServerClient();
+    const { data } = await db.from("reviews").select("school_slug").eq("status", "approved");
+    const map = new Map<string, number>();
+    for (const row of data ?? []) {
+      map.set(row.school_slug, (map.get(row.school_slug) ?? 0) + 1);
+    }
+    return map;
+  } catch {
+    return new Map();
   }
-  return map;
 }
 
 class SupabaseSchoolRepository implements SchoolRepository {
   async listSchools(filters?: SchoolFilters): Promise<School[]> {
-    const db = createServerClient();
-    const { data, error } = await db.from("schools").select("*").order("name");
-    if (error) throw new Error(`listSchools: ${error.message}`);
+    try {
+      const db = createServerClient();
+      const { data, error } = await db.from("schools").select("*").order("name");
+      if (error) return [];
 
-    const schools: School[] = ((data ?? []) as Record<string, unknown>[]).map(rowToSchool);
-    const countMap = await fetchReviewCountsBySchool();
+      const schools: School[] = ((data ?? []) as Record<string, unknown>[]).map(rowToSchool);
+      const countMap = await fetchReviewCountsBySchool();
 
-    let result: School[] = schools.map((s) => ({ ...s, reviewCount: countMap.get(s.slug) ?? 0 }));
+      let result: School[] = schools.map((s) => ({ ...s, reviewCount: countMap.get(s.slug) ?? 0 }));
 
-    if (filters?.query) {
-      const q = filters.query.toLowerCase();
-      result = result.filter(
-        (s: School) =>
-          s.name.toLowerCase().includes(q) ||
-          s.location.toLowerCase().includes(q) ||
-          s.curriculum.some((c: string) => c.toLowerCase().includes(q))
-      );
+      if (filters?.query) {
+        const q = filters.query.toLowerCase();
+        result = result.filter(
+          (s: School) =>
+            s.name.toLowerCase().includes(q) ||
+            s.location.toLowerCase().includes(q) ||
+            s.curriculum.some((c: string) => c.toLowerCase().includes(q))
+        );
+      }
+
+      return result;
+    } catch {
+      return [];
     }
-
-    return result;
   }
 
   async listFeaturedSchools(limit = 2): Promise<School[]> {
-    const db = createServerClient();
-    const { data, error } = await db
-      .from("schools")
-      .select("*")
-      .eq("is_featured", true)
-      .limit(limit);
-    if (error) throw new Error(`listFeaturedSchools: ${error.message}`);
-    return (data ?? []).map(rowToSchool);
+    try {
+      const db = createServerClient();
+      const { data, error } = await db
+        .from("schools")
+        .select("*")
+        .eq("is_featured", true)
+        .limit(limit);
+      if (error) return [];
+      return (data ?? []).map(rowToSchool);
+    } catch {
+      return [];
+    }
   }
 
   async getSchoolBySlug(slug: string): Promise<School | undefined> {
-    const db = createServerClient();
-    const { data, error } = await db.from("schools").select("*").eq("slug", slug).single();
-    if (error || !data) return undefined;
+    try {
+      const db = createServerClient();
+      const { data, error } = await db.from("schools").select("*").eq("slug", slug).single();
+      if (error || !data) return undefined;
 
-    const school = rowToSchool(data as Record<string, unknown>);
+      const school = rowToSchool(data as Record<string, unknown>);
 
-    const { data: reviews } = await db
-      .from("reviews")
-      .select("*")
-      .eq("school_slug", slug)
-      .eq("status", "approved");
+      const { data: reviews } = await db
+        .from("reviews")
+        .select("*")
+        .eq("school_slug", slug)
+        .eq("status", "approved");
 
-    const reviewList = (reviews ?? []) as Record<string, unknown>[];
-    return {
-      ...school,
-      reviewCount: reviewList.length,
-      criteriaScores: computeCriteriaScores(reviewList),
-    };
+      const reviewList = (reviews ?? []) as Record<string, unknown>[];
+      return {
+        ...school,
+        reviewCount: reviewList.length,
+        criteriaScores: computeCriteriaScores(reviewList),
+      };
+    } catch {
+      return undefined;
+    }
   }
 
   async listParentInsights(): Promise<ParentInsight[]> {

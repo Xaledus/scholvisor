@@ -31,6 +31,7 @@ function rowToStoredReview(row: Record<string, unknown>): StoredReview {
   };
 }
 
+// Write operations throw — callers (server actions) handle the error.
 export async function addPendingReview(review: StoredReview): Promise<void> {
   const db = createServerClient();
   const { error } = await db.from("reviews").insert({
@@ -79,35 +80,48 @@ export async function rejectReview(id: string, reason?: string): Promise<void> {
   if (error) throw new Error(`rejectReview: ${error.message}`);
 }
 
+// Read operations return empty on error — pages degrade gracefully rather than crashing.
 export async function listPendingReviews(): Promise<readonly StoredReview[]> {
-  const db = createServerClient();
-  const { data, error } = await db
-    .from("reviews")
-    .select("*")
-    .eq("status", "pending")
-    .order("submitted_at", { ascending: false });
-  if (error) throw new Error(`listPendingReviews: ${error.message}`);
-  return (data ?? []).map(rowToStoredReview);
+  try {
+    const db = createServerClient();
+    const { data, error } = await db
+      .from("reviews")
+      .select("*")
+      .eq("status", "pending")
+      .order("submitted_at", { ascending: false });
+    if (error) return [];
+    return (data ?? []).map(rowToStoredReview);
+  } catch {
+    return [];
+  }
 }
 
 export async function listAllReviews(): Promise<readonly StoredReview[]> {
-  const db = createServerClient();
-  const { data, error } = await db
-    .from("reviews")
-    .select("*")
-    .order("submitted_at", { ascending: false });
-  if (error) throw new Error(`listAllReviews: ${error.message}`);
-  return (data ?? []).map(rowToStoredReview);
+  try {
+    const db = createServerClient();
+    const { data, error } = await db
+      .from("reviews")
+      .select("*")
+      .order("submitted_at", { ascending: false });
+    if (error) return [];
+    return (data ?? []).map(rowToStoredReview);
+  } catch {
+    return [];
+  }
 }
 
 export async function listApprovedReviewsBySchool(slug: string): Promise<readonly StoredReview[]> {
-  const db = createServerClient();
-  const { data, error } = await db
-    .from("reviews")
-    .select("*")
-    .eq("school_slug", slug)
-    .eq("status", "approved")
-    .order("submitted_at", { ascending: false });
-  if (error) throw new Error(`listApprovedReviewsBySchool: ${error.message}`);
-  return (data ?? []).map(rowToStoredReview);
+  try {
+    const db = createServerClient();
+    const { data, error } = await db
+      .from("reviews")
+      .select("*")
+      .eq("school_slug", slug)
+      .eq("status", "approved")
+      .order("submitted_at", { ascending: false });
+    if (error) return [];
+    return (data ?? []).map(rowToStoredReview);
+  } catch {
+    return [];
+  }
 }
