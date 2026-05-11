@@ -15,7 +15,17 @@ export const budgetOptions: BudgetOption[] = [
   { key: "RM80k+", title: "RM80k+", subtitle: "Ultra-premium" },
 ];
 
-export const LOCATION_OPTIONS = ["Any", "Kuala Lumpur", "Selangor", "Putrajaya"] as const;
+export const LOCATION_OPTIONS = [
+  "Any",
+  "Kuala Lumpur",
+  "Petaling Jaya",
+  "Subang Jaya",
+  "Shah Alam",
+  "Kota Damansara",
+  "Putrajaya",
+  "Sungai Buloh",
+  "Cyberjaya",
+] as const;
 export const CURRICULUM_OPTIONS = ["Any", "British", "Cambridge", "American", "IB", "Islamic"] as const;
 export const SCHOOL_LEVEL_OPTIONS = ["Any", "Primary", "Secondary", "All-through"] as const;
 

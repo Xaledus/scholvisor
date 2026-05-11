@@ -50,6 +50,8 @@ function rowToSchool(row: Record<string, unknown>): School {
     parentInsight: (row.parent_insight as string) ?? "",
     categories: (row.categories as string[]) ?? [],
     criteria: (row.criteria as string[]) ?? [],
+    transportation: (row.transportation as boolean | null) ?? null,
+    boarding: (row.boarding as boolean | null) ?? null,
   };
 }
 

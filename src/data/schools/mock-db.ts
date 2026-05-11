@@ -18,6 +18,8 @@ export const schoolRecords: SchoolRecord[] = [
       "Families often mention that newcomer onboarding feels structured and emotionally supportive.",
     categories: ["Transition support", "Community"],
     criteria: ["Pastoral quality", "Teacher communication"],
+    transportation: null,
+    boarding: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.3 },
       { label: "Communication", score: 4.7 },
@@ -43,6 +45,8 @@ export const schoolRecords: SchoolRecord[] = [
     parentInsight: "Parents highlight teacher accessibility and practical feedback loops for each term.",
     categories: ["Curriculum", "Campus"],
     criteria: ["Teacher accessibility", "Parent feedback loops"],
+    transportation: null,
+    boarding: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.5 },
       { label: "Communication", score: 4.6 },
@@ -68,6 +72,8 @@ export const schoolRecords: SchoolRecord[] = [
     parentInsight: "Parents value the confidence children gain through clubs, sports, and house activities.",
     categories: ["Activities", "Long-term fit"],
     criteria: ["Co-curricular options", "Community continuity"],
+    transportation: null,
+    boarding: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.4 },
       { label: "Communication", score: 4.3 },
@@ -93,6 +99,8 @@ export const schoolRecords: SchoolRecord[] = [
     parentInsight: "Families appreciate clear communication around workload and realistic progression plans.",
     categories: ["Academics", "Mentorship"],
     criteria: ["Class size", "Workload transparency"],
+    transportation: null,
+    boarding: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.6 },
       { label: "Communication", score: 4.5 },
@@ -118,6 +126,8 @@ export const schoolRecords: SchoolRecord[] = [
     parentInsight: "Families appreciate transparent communication around coursework pacing and pathways.",
     categories: ["Secondary focus", "University prep"],
     criteria: ["Exam outcomes", "Guidance quality"],
+    transportation: null,
+    boarding: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.7 },
       { label: "Communication", score: 4.4 },
@@ -143,6 +153,8 @@ export const schoolRecords: SchoolRecord[] = [
     parentInsight: "Parents often mention communication feels respectful, timely, and practical.",
     categories: ["Values", "Culture"],
     criteria: ["Home-school communication", "Belonging"],
+    transportation: null,
+    boarding: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.0 },
       { label: "Communication", score: 4.6 },

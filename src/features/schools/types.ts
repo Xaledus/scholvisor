@@ -32,6 +32,8 @@ export type School = {
   categories: string[];
   criteria: string[];
   criteriaScores: CriterionScore[];
+  transportation: boolean | null;
+  boarding: boolean | null;
 };
 
 export type ParentInsight = {
