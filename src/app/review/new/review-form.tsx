@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ReviewIllustration } from "@/components/ui/illustrations";
 import { StarSelector } from "@/components/ui/star-selector";
 import {
   childGradeOptions,
@@ -195,6 +196,9 @@ export function ReviewForm({ schools }: ReviewFormProps) {
         {/* ── STEP 1: School & context ────────────────────────────────────── */}
         {step === 1 && (
           <div>
+            <div className="mb-5 overflow-hidden rounded-2xl bg-[#E3F3EF]">
+              <ReviewIllustration className="w-full" />
+            </div>
             <h1 className="text-xl font-bold text-[#0F2540]">School & your context</h1>
             <p className="mt-1 text-sm text-[#667085]">
               Context helps families understand who is behind the review.
