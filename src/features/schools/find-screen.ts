@@ -29,6 +29,7 @@ export const defaultFindCriteria: FindCriteria = {
   curriculum: "Any",
   location: "Any",
   schoolLevel: "Any",
+  searchQuery: "",
   islamicLevel: 1,
   disciplineLevel: 1,
   classSizePreference: 0,
@@ -37,6 +38,7 @@ export const defaultFindCriteria: FindCriteria = {
 
 export function buildCriteriaChips(criteria: FindCriteria): string[] {
   return [
+    criteria.searchQuery ? `"${criteria.searchQuery}"` : null,
     criteria.budgetLabel,
     criteria.curriculum !== "Any" ? criteria.curriculum : null,
     criteria.location !== "Any" ? criteria.location : null,
@@ -93,6 +95,16 @@ function buildWhyMatches(school: School, criteria: FindCriteria): string[] {
 export function selectMatchingSchools(schools: School[], criteria: FindCriteria): SchoolMatch[] {
   let pool = schools;
 
+  if (criteria.searchQuery) {
+    const q = criteria.searchQuery.toLowerCase();
+    pool = pool.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.location.toLowerCase().includes(q) ||
+        s.curriculum.some((c) => c.toLowerCase().includes(q)) ||
+        s.fitTags.some((t) => t.toLowerCase().includes(q))
+    );
+  }
   if (criteria.location !== "Any") {
     pool = pool.filter((s) => s.location === criteria.location);
   }

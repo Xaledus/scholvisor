@@ -64,6 +64,7 @@ export type FindCriteria = {
   curriculum: string;   // "Any" or specific curriculum name
   location: string;     // "Any" or city name
   schoolLevel: string;  // "Any" or SchoolLevel value
+  searchQuery: string;  // free-text, empty string means no filter
   islamicLevel: number;        // 0=not important → 3=very strict
   disciplineLevel: number;     // 0=relaxed → 3=very structured
   classSizePreference: number; // 0=small → 3=large OK
