@@ -4,10 +4,8 @@
 --
 -- Fees: 2024-2025 annual RM estimates. Verified from school
 -- websites where accessible; estimated for others.
--- Run the CREATE UNIQUE INDEX line first if it doesn't exist.
+-- Safe to re-run: ON CONFLICT DO NOTHING skips existing slugs.
 -- ============================================================
-
-CREATE UNIQUE INDEX IF NOT EXISTS schools_slug_unique ON schools (slug);
 
 INSERT INTO schools (
   slug, name, city, curriculum, age_range,
@@ -557,8 +555,7 @@ INSERT INTO schools (
   'https://www.epsomcollege.edu.my',
   'All-through'
 )
-
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT DO NOTHING;
 
 -- ─── Verify ────────────────────────────────────────────────────────────────────
 -- Run after insert to confirm counts and spot any nulls:
