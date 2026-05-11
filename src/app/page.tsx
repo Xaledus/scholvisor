@@ -1,6 +1,7 @@
 import { ParentInsightCard } from "@/components/parent-insight-card";
 import { SchoolCard } from "@/components/school-card";
 import { CTAButton } from "@/components/ui/cta-button";
+import { HomeHeroIllustration } from "@/components/ui/illustrations";
 import { TrustBadge } from "@/components/ui/trust-badge";
 import { schoolRepository } from "@/features/schools/repository";
 
@@ -10,21 +11,24 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-      <section className="rounded-3xl bg-[#0F2540] px-5 py-10 text-white sm:px-8">
-        <p className="text-xs uppercase tracking-[0.18em] text-[#E3F3EF]">Your guide. Their future.</p>
-        <h1 className="mt-3 max-w-2xl text-3xl font-bold leading-tight sm:text-4xl">
-          Because brochures don&apos;t tell the whole story.
-        </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#E3F3EF] sm:text-base">
-          Scholvisor helps families understand what school life really feels like through contextual parent
-          insights.
-        </p>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <CTAButton href="/schools">Explore schools</CTAButton>
-          <CTAButton href="/review/start" variant="secondary">
-            Share your experience
-          </CTAButton>
+      <section className="relative overflow-hidden rounded-3xl bg-[#0F2540] px-5 py-10 text-white sm:px-8">
+        <div className="relative z-10 max-w-lg">
+          <p className="text-xs uppercase tracking-[0.18em] text-[#E3F3EF]">Your guide. Their future.</p>
+          <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">
+            Because brochures don&apos;t tell the whole story.
+          </h1>
+          <p className="mt-4 text-sm leading-relaxed text-[#E3F3EF] sm:text-base">
+            Scholvisor helps families understand what school life really feels like through contextual parent
+            insights.
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <CTAButton href="/schools">Explore schools</CTAButton>
+            <CTAButton href="/review/start" variant="secondary">
+              Share your experience
+            </CTAButton>
+          </div>
         </div>
+        <HomeHeroIllustration className="absolute bottom-0 right-0 hidden h-full w-72 sm:block lg:w-80" />
       </section>
 
       <section className="mt-6 flex flex-wrap gap-3">

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { SchoolCardIllustration } from "@/components/ui/illustrations";
 import { getContextualBadges } from "@/features/schools/helpers/badge-helpers";
 import type { School } from "@/features/schools/types";
 
@@ -13,7 +14,9 @@ type SchoolCardProps = {
 
 export function SchoolCard({ school, compared = false, onToggleCompare }: SchoolCardProps) {
   return (
-    <article className="rounded-2xl border border-[#0F2540]/10 bg-white p-5 shadow-sm">
+    <article className="overflow-hidden rounded-2xl border border-[#0F2540]/10 bg-white shadow-sm">
+      <SchoolCardIllustration className="w-full" />
+      <div className="p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="text-lg font-semibold text-[#0F2540]">{school.name}</h3>
@@ -73,6 +76,7 @@ export function SchoolCard({ school, compared = false, onToggleCompare }: School
         >
           {compared ? "Comparing" : "Compare"}
         </button>
+      </div>
       </div>
     </article>
   );

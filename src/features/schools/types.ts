@@ -32,6 +32,8 @@ export type School = {
   categories: string[];
   criteria: string[];
   criteriaScores: CriterionScore[];
+  transportation: boolean | null;
+  boarding: boolean | null;
 };
 
 export type ParentInsight = {
@@ -61,9 +63,14 @@ export type SchoolUpdateInput = Partial<SchoolCreateInput>;
 
 export type FindCriteria = {
   budgetLabel: string;
-  curriculum: string;
-  location: string;
-  islamicPreference: string;
+  curriculum: string;   // "Any" or specific curriculum name
+  location: string;     // "Any" or city name
+  schoolLevel: string;  // "Any" or SchoolLevel value
+  searchQuery: string;  // free-text, empty string means no filter
+  islamicLevel: number;        // 0=not important → 3=very strict
+  disciplineLevel: number;     // 0=relaxed → 3=very structured
+  classSizePreference: number; // 0=small → 3=large OK
+  wellbeingFocus: number;      // 0=standard → 3=core mission
 };
 
 export type SchoolMatch = {
