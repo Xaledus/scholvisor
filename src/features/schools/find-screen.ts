@@ -6,52 +6,41 @@ export type BudgetOption = {
   subtitle: string;
 };
 
-export type CoreFilterCard = {
-  name: string;
-  value: string;
-};
-
 export const defaultBudgetKey = "RM20k-RM40k";
 
 export const budgetOptions: BudgetOption[] = [
   { key: "Under RM20k", title: "Under RM20k", subtitle: "Budget-friendly" },
-  { key: "RM20k-RM40k", title: "RM20k - RM40k", subtitle: "Mid-range" },
-  { key: "RM40k-RM80k", title: "RM40k - RM80k", subtitle: "Premium" },
-  { key: "RM80k+", title: "RM80k+", subtitle: "Ultra-premium" }
+  { key: "RM20k-RM40k", title: "RM20k – RM40k", subtitle: "Mid-range" },
+  { key: "RM40k-RM80k", title: "RM40k – RM80k", subtitle: "Premium" },
+  { key: "RM80k+", title: "RM80k+", subtitle: "Ultra-premium" },
 ];
 
-export const coreFilterCards: CoreFilterCard[] = [
-  { name: "Location", value: "Any location" },
-  { name: "Curriculum", value: "Any curriculum" },
-  { name: "School level", value: "Any level" },
-  { name: "Islamic environment", value: "Any" }
-];
-
-export const moreFilterRows: string[] = [
-  "Expat community",
-  "Class size",
-  "Extracurricular",
-  "Languages",
-  "Special needs support",
-  "Transportation",
-  "Boarding",
-  "Other facilities"
-];
+export const islamicLevelLabels = ["Not important", "Welcome", "Observant", "Very strict"] as const;
+export const disciplineLevelLabels = ["Relaxed", "Balanced", "Structured", "Very structured"] as const;
+export const classSizeLabels = ["Small classes", "Medium-small", "Medium-large", "Large OK"] as const;
+export const wellbeingLabels = ["Standard", "Moderate", "High priority", "Core mission"] as const;
 
 export const defaultFindCriteria: FindCriteria = {
-  budgetLabel: "RM20k - RM40k",
-  curriculum: "British curriculum",
-  location: "Kuala Lumpur",
-  islamicPreference: "Islamic: Moderate"
+  budgetLabel: "RM20k – RM40k",
+  curriculum: "Any",
+  location: "Any",
+  islamicLevel: 1,
+  disciplineLevel: 1,
+  classSizePreference: 0,
+  wellbeingFocus: 1,
 };
 
-export const selectedCriteriaChips: string[] = [
-  "RM20k - RM40k",
-  "British curriculum",
-  "Kuala Lumpur",
-  "Islamic: Moderate",
-  "+6 more"
-];
+export function buildCriteriaChips(criteria: FindCriteria): string[] {
+  return [
+    criteria.budgetLabel,
+    criteria.curriculum !== "Any" ? criteria.curriculum : null,
+    criteria.location !== "Any" ? criteria.location : null,
+    `Islamic: ${islamicLevelLabels[criteria.islamicLevel]}`,
+    `Discipline: ${disciplineLevelLabels[criteria.disciplineLevel]}`,
+    `Class size: ${classSizeLabels[criteria.classSizePreference]}`,
+    `Wellbeing: ${wellbeingLabels[criteria.wellbeingFocus]}`,
+  ].filter((v): v is string => v !== null);
+}
 
 export function selectPopularSearchChips(schools: School[]): string[] {
   const hasBritish = schools.some((school) => school.curriculum.includes("British"));
@@ -62,22 +51,28 @@ export function selectPopularSearchChips(schools: School[]): string[] {
     hasBritish ? "British curriculum" : "Top curriculum",
     hasIslamic ? "Islamic school" : "Values-based school",
     hasKL ? "Near KL" : "Near city",
-    "Best academics"
+    "Best academics",
   ];
 }
 
 function calculateMatchScore(school: School, criteria: FindCriteria): number {
   let score = 72 + Math.round(school.rating * 4);
-  if (school.location === criteria.location) score += 7;
-  if (school.curriculum.some((item) => criteria.curriculum.includes(item))) score += 6;
-  if (school.islamicEnvironment === "Available" && criteria.islamicPreference.includes("Islamic")) score += 4;
+  if (criteria.location !== "Any" && school.location === criteria.location) score += 7;
+  if (criteria.curriculum !== "Any" && school.curriculum.some((c) => c.includes(criteria.curriculum))) score += 6;
+  if (criteria.islamicLevel >= 1 && school.islamicEnvironment === "Available") {
+    score += criteria.islamicLevel * 2;
+  }
   return Math.min(98, score);
 }
 
-function buildWhyMatches(school: School): string[] {
+function buildWhyMatches(school: School, criteria: FindCriteria): string[] {
   const bullets: string[] = [];
-  if (school.islamicEnvironment === "Available") {
-    bullets.push("Balanced Islamic environment with international openness");
+  if (criteria.islamicLevel >= 1 && school.islamicEnvironment === "Available") {
+    bullets.push(
+      criteria.islamicLevel >= 3
+        ? "Fully Islamic environment matches your preference"
+        : "Balanced Islamic environment with international openness"
+    );
   }
   bullets.push("Strong academics with personalized learning");
   bullets.push(
@@ -94,7 +89,7 @@ export function selectMatchingSchools(schools: School[], criteria: FindCriteria)
     .map((school) => ({
       school,
       matchScore: calculateMatchScore(school, criteria),
-      whyMatches: buildWhyMatches(school)
+      whyMatches: buildWhyMatches(school, criteria),
     }))
     .sort((a, b) => b.matchScore - a.matchScore);
 }

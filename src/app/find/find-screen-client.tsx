@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   BookMarked,
   Compass,
@@ -10,13 +10,16 @@ import {
   Menu,
   PencilLine,
   Scale,
-  Search
+  Search,
 } from "lucide-react";
 import {
   budgetOptions,
-  coreFilterCards,
+  classSizeLabels,
   defaultBudgetKey,
-  moreFilterRows,
+  defaultFindCriteria,
+  disciplineLevelLabels,
+  islamicLevelLabels,
+  wellbeingLabels,
 } from "@/features/schools/find-screen";
 
 type FindScreenClientProps = {
@@ -24,7 +27,25 @@ type FindScreenClientProps = {
 };
 
 export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
+  const router = useRouter();
   const [selectedBudget, setSelectedBudget] = useState(defaultBudgetKey);
+  const [islamicLevel, setIslamicLevel] = useState(defaultFindCriteria.islamicLevel);
+  const [disciplineLevel, setDisciplineLevel] = useState(defaultFindCriteria.disciplineLevel);
+  const [classSizePreference, setClassSizePreference] = useState(defaultFindCriteria.classSizePreference);
+  const [wellbeingFocus, setWellbeingFocus] = useState(defaultFindCriteria.wellbeingFocus);
+
+  const handleShowResults = () => {
+    const params = new URLSearchParams({
+      budget: selectedBudget,
+      curriculum: "Any",
+      location: "Any",
+      islamic: String(islamicLevel),
+      discipline: String(disciplineLevel),
+      classSize: String(classSizePreference),
+      wellbeing: String(wellbeingFocus),
+    });
+    router.push(`/find/results?${params.toString()}`);
+  };
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 pb-24 pt-4 sm:px-6">
@@ -85,14 +106,10 @@ export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
         </section>
 
         <section className="mt-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-[#0F2540]">Filter by what matters to your family</h2>
-            <button type="button" className="text-xs font-semibold text-[#1DBAA5]">
-              Clear all
-            </button>
-          </div>
+          <h2 className="text-base font-semibold text-[#0F2540]">Filter by what matters to your family</h2>
         </section>
 
+        {/* Budget */}
         <section className="mt-4">
           <h3 className="text-sm font-semibold text-[#0F2540]">Budget (annual tuition)</h3>
           <p className="mt-1 text-xs text-[#667085]">Select your comfortable range</p>
@@ -104,7 +121,7 @@ export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
                   key={option.key}
                   type="button"
                   onClick={() => setSelectedBudget(option.key)}
-                  className={`rounded-xl border p-3 text-left ${
+                  className={`rounded-xl border p-3 text-left transition-colors ${
                     selected ? "border-[#1DBAA5] bg-[#E3F3EF]" : "border-[#0F2540]/10 bg-white"
                   }`}
                 >
@@ -116,38 +133,52 @@ export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
           </div>
         </section>
 
-        <section className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {coreFilterCards.map((item) => (
-            <button
-              key={item.name}
-              type="button"
-              className="rounded-xl border border-[#0F2540]/10 bg-white p-3 text-left"
-            >
-              <p className="text-sm font-semibold text-[#0F2540]">{item.name}</p>
-              <p className="mt-1 text-xs text-[#667085]">{item.value}</p>
-            </button>
-          ))}
-        </section>
+        {/* Priority sliders */}
+        <section className="mt-5 space-y-5 rounded-2xl border border-[#0F2540]/10 bg-[#F2F4F7] p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#667085]">What matters to you</p>
 
-        <section className="mt-5 rounded-2xl border border-[#0F2540]/10 bg-[#F2F4F7] p-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[#667085]">More filters</p>
-          <div className="mt-2 divide-y divide-[#0F2540]/10">
-            {moreFilterRows.map((item) => (
-              <div key={item} className="flex items-center justify-between py-2 text-sm text-[#0F2540]">
-                <span>{item}</span>
-                <span className="text-[#667085]">+</span>
-              </div>
-            ))}
-          </div>
+          <CriteriaSlider
+            label="Islamic environment"
+            value={islamicLevel}
+            onChange={setIslamicLevel}
+            labels={islamicLevelLabels}
+            minLabel="Not important"
+            maxLabel="Very strict"
+          />
+          <CriteriaSlider
+            label="Discipline style"
+            value={disciplineLevel}
+            onChange={setDisciplineLevel}
+            labels={disciplineLevelLabels}
+            minLabel="Relaxed"
+            maxLabel="Very structured"
+          />
+          <CriteriaSlider
+            label="Class size"
+            value={classSizePreference}
+            onChange={setClassSizePreference}
+            labels={classSizeLabels}
+            minLabel="Small"
+            maxLabel="Large"
+          />
+          <CriteriaSlider
+            label="Wellbeing focus"
+            value={wellbeingFocus}
+            onChange={setWellbeingFocus}
+            labels={wellbeingLabels}
+            minLabel="Standard"
+            maxLabel="Core mission"
+          />
         </section>
 
         <section className="mt-5">
-          <Link
-            href="/find/results"
+          <button
+            type="button"
+            onClick={handleShowResults}
             className="block w-full rounded-xl bg-[#1DBAA5] px-4 py-3 text-center text-sm font-semibold text-white shadow-sm"
           >
             Show matching schools
-          </Link>
+          </button>
           <p className="mt-3 text-center text-xs text-[#667085]">Your preferences are private and secure</p>
         </section>
       </section>
@@ -162,6 +193,42 @@ export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
         </div>
       </nav>
     </main>
+  );
+}
+
+type CriteriaSliderProps = {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  labels: readonly string[];
+  minLabel: string;
+  maxLabel: string;
+};
+
+function CriteriaSlider({ label, value, onChange, labels, minLabel, maxLabel }: CriteriaSliderProps) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-[#0F2540]">{label}</span>
+        <span className="rounded-full bg-[#1DBAA5]/15 px-2.5 py-0.5 text-xs font-semibold text-[#1DBAA5]">
+          {labels[value]}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={labels.length - 1}
+        step={1}
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value))}
+        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#E3F3EF]"
+        style={{ accentColor: "#1DBAA5" }}
+      />
+      <div className="flex justify-between text-[10px] text-[#667085]">
+        <span>{minLabel}</span>
+        <span>{maxLabel}</span>
+      </div>
+    </div>
   );
 }
 

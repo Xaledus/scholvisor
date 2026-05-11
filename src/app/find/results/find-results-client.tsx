@@ -11,16 +11,16 @@ import {
   PencilLine,
   Scale
 } from "lucide-react";
-import { selectedCriteriaChips } from "@/features/schools/find-screen";
 import type { SchoolMatch } from "@/features/schools/types";
 
 const MAX_COMPARE = 3;
 
 type FindResultsClientProps = {
   initialResults: SchoolMatch[];
+  criteriaChips: string[];
 };
 
-export function FindResultsClient({ initialResults }: FindResultsClientProps) {
+export function FindResultsClient({ initialResults, criteriaChips }: FindResultsClientProps) {
   const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
   const [comparedSlugs, setComparedSlugs] = useState<string[]>([]);
 
@@ -72,7 +72,7 @@ export function FindResultsClient({ initialResults }: FindResultsClientProps) {
 
         <section className="mt-4">
           <div className="flex flex-wrap gap-2">
-            {selectedCriteriaChips.map((chip) => (
+            {criteriaChips.map((chip) => (
               <span
                 key={chip}
                 className="inline-flex items-center rounded-full border border-[#1DBAA5]/35 bg-[#E3F3EF] px-3 py-1 text-xs font-medium text-[#0F2540]"

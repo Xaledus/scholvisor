@@ -63,7 +63,10 @@ export type FindCriteria = {
   budgetLabel: string;
   curriculum: string;
   location: string;
-  islamicPreference: string;
+  islamicLevel: number;        // 0=not important → 3=very strict
+  disciplineLevel: number;     // 0=relaxed → 3=very structured
+  classSizePreference: number; // 0=small → 3=large OK
+  wellbeingFocus: number;      // 0=standard → 3=core mission
 };
 
 export type SchoolMatch = {
