@@ -14,6 +14,7 @@ export default async function FindResultsPage({ searchParams }: Props) {
     budgetLabel: sp.budget ?? defaultFindCriteria.budgetLabel,
     curriculum: sp.curriculum ?? defaultFindCriteria.curriculum,
     location: sp.location ?? defaultFindCriteria.location,
+    schoolLevel: sp.schoolLevel ?? defaultFindCriteria.schoolLevel,
     islamicLevel: parseInt(sp.islamic ?? String(defaultFindCriteria.islamicLevel)),
     disciplineLevel: parseInt(sp.discipline ?? String(defaultFindCriteria.disciplineLevel)),
     classSizePreference: parseInt(sp.classSize ?? String(defaultFindCriteria.classSizePreference)),

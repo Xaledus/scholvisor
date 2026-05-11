@@ -15,6 +15,10 @@ export const budgetOptions: BudgetOption[] = [
   { key: "RM80k+", title: "RM80k+", subtitle: "Ultra-premium" },
 ];
 
+export const LOCATION_OPTIONS = ["Any", "Kuala Lumpur", "Selangor", "Putrajaya"] as const;
+export const CURRICULUM_OPTIONS = ["Any", "British", "Cambridge", "American", "IB", "Islamic"] as const;
+export const SCHOOL_LEVEL_OPTIONS = ["Any", "Primary", "Secondary", "All-through"] as const;
+
 export const islamicLevelLabels = ["Not important", "Welcome", "Observant", "Very strict"] as const;
 export const disciplineLevelLabels = ["Relaxed", "Balanced", "Structured", "Very structured"] as const;
 export const classSizeLabels = ["Small classes", "Medium-small", "Medium-large", "Large OK"] as const;
@@ -24,6 +28,7 @@ export const defaultFindCriteria: FindCriteria = {
   budgetLabel: "RM20k – RM40k",
   curriculum: "Any",
   location: "Any",
+  schoolLevel: "Any",
   islamicLevel: 1,
   disciplineLevel: 1,
   classSizePreference: 0,
@@ -35,6 +40,7 @@ export function buildCriteriaChips(criteria: FindCriteria): string[] {
     criteria.budgetLabel,
     criteria.curriculum !== "Any" ? criteria.curriculum : null,
     criteria.location !== "Any" ? criteria.location : null,
+    criteria.schoolLevel !== "Any" ? criteria.schoolLevel : null,
     `Islamic: ${islamicLevelLabels[criteria.islamicLevel]}`,
     `Discipline: ${disciplineLevelLabels[criteria.disciplineLevel]}`,
     `Class size: ${classSizeLabels[criteria.classSizePreference]}`,
@@ -85,7 +91,19 @@ function buildWhyMatches(school: School, criteria: FindCriteria): string[] {
 }
 
 export function selectMatchingSchools(schools: School[], criteria: FindCriteria): SchoolMatch[] {
-  return schools
+  let pool = schools;
+
+  if (criteria.location !== "Any") {
+    pool = pool.filter((s) => s.location === criteria.location);
+  }
+  if (criteria.curriculum !== "Any") {
+    pool = pool.filter((s) => s.curriculum.some((c) => c.includes(criteria.curriculum)));
+  }
+  if (criteria.schoolLevel !== "Any") {
+    pool = pool.filter((s) => s.schoolLevel === criteria.schoolLevel);
+  }
+
+  return pool
     .map((school) => ({
       school,
       matchScore: calculateMatchScore(school, criteria),

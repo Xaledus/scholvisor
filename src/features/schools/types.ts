@@ -61,8 +61,9 @@ export type SchoolUpdateInput = Partial<SchoolCreateInput>;
 
 export type FindCriteria = {
   budgetLabel: string;
-  curriculum: string;
-  location: string;
+  curriculum: string;   // "Any" or specific curriculum name
+  location: string;     // "Any" or city name
+  schoolLevel: string;  // "Any" or SchoolLevel value
   islamicLevel: number;        // 0=not important → 3=very strict
   disciplineLevel: number;     // 0=relaxed → 3=very structured
   classSizePreference: number; // 0=small → 3=large OK
