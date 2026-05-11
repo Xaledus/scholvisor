@@ -1,0 +1,185 @@
+import type { ParentInsight, SchoolRecord } from "@/features/schools/types";
+
+export const schoolRecords: SchoolRecord[] = [
+  {
+    slug: "alice-smith-school",
+    name: "Alice Smith School",
+    location: "Kuala Lumpur",
+    curriculum: ["British", "IB"],
+    ages: "4-18",
+    schoolLevel: "Primary to Secondary",
+    islamicEnvironment: "Not specified",
+    annualTuitionRange: "$12k-$24k",
+    rating: 4.7,
+    reviewCount: 84,
+    fitTags: ["Pastoral care", "Balanced academics", "Welcoming transitions"],
+    summary: "A well-rounded international environment with strong student support.",
+    parentInsight:
+      "Families often mention that newcomer onboarding feels structured and emotionally supportive.",
+    categories: ["Transition support", "Community"],
+    criteria: ["Pastoral quality", "Teacher communication"],
+    criteriaScores: [
+      { label: "Academic quality", score: 4.3 },
+      { label: "Communication", score: 4.7 },
+      { label: "Integration support", score: 4.8 },
+      { label: "Safety & wellbeing", score: 4.6 },
+      { label: "Community & diversity", score: 4.2 },
+      { label: "Value for money", score: 3.8 }
+    ]
+  },
+  {
+    slug: "spectrum-international-school",
+    name: "Spectrum International School",
+    location: "Kuala Lumpur",
+    curriculum: ["IB", "US"],
+    ages: "3-18",
+    schoolLevel: "All-through",
+    islamicEnvironment: "Available",
+    annualTuitionRange: "$10k-$22k",
+    rating: 4.5,
+    reviewCount: 63,
+    fitTags: ["Project-based learning", "Diverse community", "Modern campus"],
+    summary: "Inquiry-driven learning with a globally mixed parent and student community.",
+    parentInsight: "Parents highlight teacher accessibility and practical feedback loops for each term.",
+    categories: ["Curriculum", "Campus"],
+    criteria: ["Teacher accessibility", "Parent feedback loops"],
+    criteriaScores: [
+      { label: "Academic quality", score: 4.5 },
+      { label: "Communication", score: 4.6 },
+      { label: "Integration support", score: 4.2 },
+      { label: "Safety & wellbeing", score: 4.4 },
+      { label: "Community & diversity", score: 4.7 },
+      { label: "Value for money", score: 4.0 }
+    ]
+  },
+  {
+    slug: "garden-international-school",
+    name: "Garden International School",
+    location: "Kuala Lumpur",
+    curriculum: ["British"],
+    ages: "2-18",
+    schoolLevel: "Early years to Secondary",
+    islamicEnvironment: "Not specified",
+    annualTuitionRange: "$11k-$23k",
+    rating: 4.6,
+    reviewCount: 101,
+    fitTags: ["Extracurricular depth", "Community warmth", "Strong co-curricular"],
+    summary: "A long-established campus known for community continuity and broad activities.",
+    parentInsight: "Parents value the confidence children gain through clubs, sports, and house activities.",
+    categories: ["Activities", "Long-term fit"],
+    criteria: ["Co-curricular options", "Community continuity"],
+    criteriaScores: [
+      { label: "Academic quality", score: 4.4 },
+      { label: "Communication", score: 4.3 },
+      { label: "Integration support", score: 4.1 },
+      { label: "Safety & wellbeing", score: 4.5 },
+      { label: "Community & diversity", score: 4.3 },
+      { label: "Value for money", score: 3.9 }
+    ]
+  },
+  {
+    slug: "harbor-global-academy",
+    name: "Harbor Global Academy",
+    location: "Selangor",
+    curriculum: ["IB"],
+    ages: "5-18",
+    schoolLevel: "Primary to Secondary",
+    islamicEnvironment: "Available",
+    annualTuitionRange: "$13k-$26k",
+    rating: 4.4,
+    reviewCount: 39,
+    fitTags: ["Academic stretch", "Small classes", "Mentor-led guidance"],
+    summary: "An academically focused environment with personalized mentoring culture.",
+    parentInsight: "Families appreciate clear communication around workload and realistic progression plans.",
+    categories: ["Academics", "Mentorship"],
+    criteria: ["Class size", "Workload transparency"],
+    criteriaScores: [
+      { label: "Academic quality", score: 4.6 },
+      { label: "Communication", score: 4.5 },
+      { label: "Integration support", score: 3.9 },
+      { label: "Safety & wellbeing", score: 4.3 },
+      { label: "Community & diversity", score: 3.8 },
+      { label: "Value for money", score: 3.6 }
+    ]
+  },
+  {
+    slug: "pinnacle-learning-college",
+    name: "Pinnacle Learning College",
+    location: "Petaling Jaya",
+    curriculum: ["British", "Cambridge"],
+    ages: "11-18",
+    schoolLevel: "Secondary",
+    islamicEnvironment: "Not specified",
+    annualTuitionRange: "$14k-$28k",
+    rating: 4.3,
+    reviewCount: 42,
+    fitTags: ["Exam readiness", "Structured routines", "Counselor support"],
+    summary: "A secondary-focused environment with clear academic milestones and guidance.",
+    parentInsight: "Families appreciate transparent communication around coursework pacing and pathways.",
+    categories: ["Secondary focus", "University prep"],
+    criteria: ["Exam outcomes", "Guidance quality"],
+    criteriaScores: [
+      { label: "Academic quality", score: 4.7 },
+      { label: "Communication", score: 4.4 },
+      { label: "Integration support", score: 3.8 },
+      { label: "Safety & wellbeing", score: 4.2 },
+      { label: "Community & diversity", score: 3.7 },
+      { label: "Value for money", score: 3.5 }
+    ]
+  },
+  {
+    slug: "crescent-international-academy",
+    name: "Crescent International Academy",
+    location: "Kuala Lumpur",
+    curriculum: ["British", "Islamic Studies"],
+    ages: "5-16",
+    schoolLevel: "Primary to Lower Secondary",
+    islamicEnvironment: "Available",
+    annualTuitionRange: "$9k-$18k",
+    rating: 4.4,
+    reviewCount: 57,
+    fitTags: ["Values-based culture", "Pastoral consistency", "Family communication"],
+    summary: "A values-grounded setting balancing academics with character and belonging.",
+    parentInsight: "Parents often mention communication feels respectful, timely, and practical.",
+    categories: ["Values", "Culture"],
+    criteria: ["Home-school communication", "Belonging"],
+    criteriaScores: [
+      { label: "Academic quality", score: 4.0 },
+      { label: "Communication", score: 4.6 },
+      { label: "Integration support", score: 4.3 },
+      { label: "Safety & wellbeing", score: 4.5 },
+      { label: "Community & diversity", score: 4.1 },
+      { label: "Value for money", score: 4.4 }
+    ]
+  }
+];
+
+export const parentInsightRecords: ParentInsight[] = [
+  {
+    id: "insight-1",
+    schoolSlug: "alice-smith-school",
+    title: "Settling in as an expat family",
+    context: "First year transition",
+    quote: "The first 90 days mattered most. We felt seen as a family, not just another enrollment file.",
+    author: "Parent of Year 6 student",
+    rating: 5
+  },
+  {
+    id: "insight-2",
+    schoolSlug: "spectrum-international-school",
+    title: "Daily rhythm beyond academics",
+    context: "Primary school routine",
+    quote: "Teachers were proactive about social confidence, not only grades. That changed our child quickly.",
+    author: "Parent of Grade 4 student",
+    rating: 4
+  },
+  {
+    id: "insight-3",
+    schoolSlug: "garden-international-school",
+    title: "Co-curricular impact on confidence",
+    context: "Middle school experience",
+    quote: "The club ecosystem gave our daughter a place to belong before she felt fully academically settled.",
+    author: "Parent of Year 8 student",
+    rating: 5
+  }
+];
