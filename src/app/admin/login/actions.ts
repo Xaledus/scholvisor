@@ -5,13 +5,13 @@ import { redirect } from "next/navigation";
 import { COOKIE_NAME, createSessionToken } from "@/lib/admin-auth";
 
 export async function loginAction(formData: FormData): Promise<void> {
-  const email = (formData.get("email") as string ?? "").trim().toLowerCase();
-  const password = formData.get("password") as string ?? "";
+  const inputEmail = String(formData.get("email") ?? "").toLowerCase().trim();
+  const inputPassword = String(formData.get("password") ?? "");
 
-  const adminEmail = (process.env.ADMIN_EMAIL ?? "").toLowerCase();
-  const adminPassword = process.env.ADMIN_PASSWORD ?? "";
+  const adminEmail = (process.env.ADMIN_EMAIL ?? "").toLowerCase().trim();
+  const adminPassword = (process.env.ADMIN_PASSWORD ?? "").trim();
 
-  if (!email || !password || email !== adminEmail || password !== adminPassword) {
+  if (!inputEmail || !inputPassword || inputEmail !== adminEmail || inputPassword !== adminPassword) {
     redirect("/admin/login?error=1");
   }
 
