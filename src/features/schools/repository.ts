@@ -100,7 +100,7 @@ class SupabaseSchoolRepository implements SchoolRepository {
   async listSchools(filters?: SchoolFilters): Promise<School[]> {
     try {
       const db = createServerClient();
-      const { data, error } = await db.from("schools").select("*").order("name");
+      const { data, error } = await db.from("schools").select("*").eq("status", "active").order("name");
       if (error) return [];
 
       const schools: School[] = ((data ?? []) as Record<string, unknown>[]).map(rowToSchool);
@@ -130,6 +130,7 @@ class SupabaseSchoolRepository implements SchoolRepository {
       const { data, error } = await db
         .from("schools")
         .select("*")
+        .eq("status", "active")
         .eq("is_featured", true)
         .limit(limit);
       if (error) return [];
@@ -142,7 +143,7 @@ class SupabaseSchoolRepository implements SchoolRepository {
   async getSchoolBySlug(slug: string): Promise<School | undefined> {
     try {
       const db = createServerClient();
-      const { data, error } = await db.from("schools").select("*").eq("slug", slug).single();
+      const { data, error } = await db.from("schools").select("*").eq("status", "active").eq("slug", slug).single();
       if (error || !data) return undefined;
 
       const school = rowToSchool(data as Record<string, unknown>);
