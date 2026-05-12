@@ -42,6 +42,7 @@ export async function addPendingReview(review: StoredReview): Promise<void> {
     child_grade: review.childGrade,
     attendance_period: review.attendancePeriod,
     nationality: review.nationality || null,
+    display_name: review.displayName || null,
     email: review.email,
     strengths: review.strengths || null,
     frustrations: review.frustrations || null,
@@ -56,7 +57,11 @@ export async function addPendingReview(review: StoredReview): Promise<void> {
     marketing_vs_reality: review.criteriaScores.marketingVsReality,
     islamic_environment: review.criteriaScores.islamicEnvironment,
   });
-  if (error) throw new Error(`addPendingReview: ${error.message}`);
+  if (error) {
+    console.error("[addPendingReview] insert error:", error.message, error.details);
+    throw new Error(`addPendingReview: ${error.message}`);
+  }
+  console.log("[addPendingReview] saved review:", review.id);
 }
 
 export async function approveReview(id: string): Promise<void> {
@@ -90,9 +95,11 @@ export async function listPendingReviews(): Promise<readonly StoredReview[]> {
       .select("*")
       .eq("status", "pending")
       .order("submitted_at", { ascending: false });
+    console.log("[listPendingReviews] rows:", data?.length ?? 0, "error:", error?.message ?? null);
     if (error) return [];
     return (data ?? []).map(rowToStoredReview);
-  } catch {
+  } catch (e) {
+    console.error("[listPendingReviews] caught:", e);
     return [];
   }
 }

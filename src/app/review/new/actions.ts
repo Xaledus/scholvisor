@@ -30,12 +30,20 @@ export async function submitReview(data: ReviewFormData): Promise<SubmitResult> 
 
   const review: PendingReview = {
     ...data,
-    id: `review-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    id: crypto.randomUUID(),
     status: "pending",
-    submittedAt: new Date().toISOString()
+    submittedAt: new Date().toISOString(),
   };
 
-  await addPendingReview(review);
+  try {
+    await addPendingReview(review);
+  } catch (err) {
+    console.error("[submitReview] addPendingReview failed:", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to save review. Please try again.",
+    };
+  }
 
   return { success: true, id: review.id };
 }

@@ -244,6 +244,8 @@ export function ReviewForm({ schools }: ReviewFormProps) {
       } else {
         setErrors({ submit: result.error });
       }
+    } catch {
+      setErrors({ submit: "Something went wrong. Please try again." });
     } finally {
       setSubmitting(false);
     }
@@ -258,26 +260,19 @@ export function ReviewForm({ schools }: ReviewFormProps) {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#E3F3EF]">
             <CheckCircle2 className="h-7 w-7 text-[#1DBAA5]" />
           </div>
-          <h1 className="mt-5 text-xl font-bold text-[#0F2540]">Thank you for sharing</h1>
-          <p className="mt-2 text-sm leading-relaxed text-[#667085]">
-            Your review is now pending moderation. Once approved, it will help other families
-            choose a school with real confidence.
+          <h1 className="mt-5 text-xl font-bold text-[#0F2540]">
+            Thank you for sharing your experience 🙏
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-[#667085]">
+            Your review has been received and is pending moderation. We&apos;ll notify you by email
+            once it&apos;s published — usually within 24–48 hours.
           </p>
-          <p className="mt-4 rounded-xl bg-[#F2F4F7] px-4 py-3 text-xs text-[#667085]">
-            Your name and email are never shown publicly.
-          </p>
-          <div className="mt-7 flex flex-col gap-3">
+          <div className="mt-7">
             <Link
               href="/schools"
               className="inline-flex justify-center rounded-xl bg-[#1DBAA5] px-5 py-3 text-sm font-semibold text-white"
             >
               Explore more schools
-            </Link>
-            <Link
-              href="/"
-              className="inline-flex justify-center rounded-xl border border-[#0F2540]/20 px-5 py-3 text-sm font-semibold text-[#0F2540]"
-            >
-              Back to home
             </Link>
           </div>
         </div>
