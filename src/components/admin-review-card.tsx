@@ -8,23 +8,22 @@ import type { StoredReview } from "@/features/reviews/types";
 type AdminReviewCardProps = {
   review: StoredReview;
   schoolName: string;
-  secret: string;
 };
 
-export function AdminReviewCard({ review, schoolName, secret }: AdminReviewCardProps) {
+export function AdminReviewCard({ review, schoolName }: AdminReviewCardProps) {
   const [isPending, startTransition] = useTransition();
   const [isRejecting, setIsRejecting] = useState(false);
   const [reason, setReason] = useState("");
 
   function handleApprove() {
     startTransition(async () => {
-      await approveReviewAction(review.id, review.schoolSlug, secret);
+      await approveReviewAction(review.id, review.schoolSlug);
     });
   }
 
   function handleConfirmReject() {
     startTransition(async () => {
-      await rejectReviewAction(review.id, reason, secret);
+      await rejectReviewAction(review.id, reason);
       setIsRejecting(false);
       setReason("");
     });
