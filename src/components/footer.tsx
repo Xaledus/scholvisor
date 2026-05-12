@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 export function Footer() {
   return (
@@ -14,7 +14,7 @@ export function Footer() {
             Legal
           </Link>
           <a
-            href="mailto:hello@scholvisor.com"
+            href="mailto:scholvisor@gmail.com"
             className="text-xs text-[#667085] underline-offset-2 hover:underline"
           >
             Contact

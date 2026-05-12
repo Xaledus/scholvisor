@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Legal & Policies — Scholvisor",
+  title: "Legal & Policies â€” Scholvisor",
 };
 
 type Section = {
@@ -94,7 +94,7 @@ export default function LegalPage() {
             items={[
               "Email address (never shown publicly, used only for review notifications)",
               "Anonymous display name (chosen by you)",
-              "General family context (nationality, school level) — shown publicly only with your consent",
+              "General family context (nationality, school level) â€” shown publicly only with your consent",
             ]}
           />
           <p>
@@ -115,8 +115,8 @@ export default function LegalPage() {
           <p>
             We strive for accuracy but cannot guarantee that all information is current. Schools may
             request corrections of factual errors by contacting{" "}
-            <a href="mailto:hello@scholvisor.com" className="font-medium text-[#1DBAA5]">
-              hello@scholvisor.com
+            <a href="mailto:scholvisor@gmail.com" className="font-medium text-[#1DBAA5]">
+              scholvisor@gmail.com
             </a>
             .
           </p>
@@ -126,8 +126,8 @@ export default function LegalPage() {
           <p>
             Schools listed on Scholvisor may request a right of reply to community reviews by
             contacting{" "}
-            <a href="mailto:schools@scholvisor.com" className="font-medium text-[#1DBAA5]">
-              schools@scholvisor.com
+            <a href="mailto:scholvisor@gmail.com" className="font-medium text-[#1DBAA5]">
+              scholvisor@gmail.com
             </a>
             .
           </p>
@@ -162,10 +162,10 @@ export default function LegalPage() {
 
       <div className="mt-8 text-center">
         <a
-          href="mailto:hello@scholvisor.com"
+          href="mailto:scholvisor@gmail.com"
           className="text-xs text-[#667085] underline-offset-2 hover:underline"
         >
-          Questions? Contact hello@scholvisor.com
+          Questions? Contact scholvisor@gmail.com
         </a>
       </div>
     </main>

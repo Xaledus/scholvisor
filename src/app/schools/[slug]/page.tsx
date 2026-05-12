@@ -157,7 +157,7 @@ export default async function SchoolOverviewPage({ params }: SchoolOverviewPageP
       {/* Report error */}
       <div className="mt-4 text-center">
         <a
-          href={`mailto:hello@scholvisor.com?subject=${encodeURIComponent(`Error report: ${school.name}`)}`}
+          href={`mailto:scholvisor@gmail.com?subject=${encodeURIComponent(`Error report: ${school.name}`)}`}
           className="text-xs text-[#667085] underline-offset-2 hover:underline"
         >
           Report an error
