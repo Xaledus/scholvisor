@@ -87,7 +87,10 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
     });
   };
 
-  const clearFilters = () => setActiveFilters(new Set());
+  const clearAll = () => {
+    setQuery("");
+    setActiveFilters(new Set());
+  };
 
   const toggleCompare = (slug: string) => {
     setSelectedForCompare((cur) =>
@@ -149,10 +152,10 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
             </div>
           </div>
         ))}
-        {activeFilters.size > 0 && (
+        {(activeFilters.size > 0 || query) && (
           <button
             type="button"
-            onClick={clearFilters}
+            onClick={clearAll}
             className="text-xs font-semibold text-[#1DBAA5]"
           >
             Clear all filters
@@ -168,16 +171,17 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
 
       {filteredSchools.length === 0 ? (
         <section className="mt-4 rounded-2xl border border-dashed border-[#0F2540]/20 bg-white p-8 text-center text-sm text-[#667085]">
-          No schools match these filters.{" "}
-          {activeFilters.size > 0 && (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="font-semibold text-[#1DBAA5] underline-offset-2 hover:underline"
-            >
-              Clear filters
-            </button>
-          )}
+          {query
+            ? <>No schools found for <span className="font-semibold text-[#0F2540]">&ldquo;{query}&rdquo;</span>.</>
+            : "No schools match these filters."
+          }{" "}
+          <button
+            type="button"
+            onClick={clearAll}
+            className="font-semibold text-[#1DBAA5] underline-offset-2 hover:underline"
+          >
+            Clear
+          </button>
         </section>
       ) : (
         <>
