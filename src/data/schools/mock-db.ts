@@ -20,6 +20,8 @@ export const schoolRecords: SchoolRecord[] = [
     criteria: ["Pastoral quality", "Teacher communication"],
     transportation: null,
     boarding: null,
+    website_url: null,
+    cover_image_url: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.3 },
       { label: "Communication", score: 4.7 },
@@ -47,6 +49,8 @@ export const schoolRecords: SchoolRecord[] = [
     criteria: ["Teacher accessibility", "Parent feedback loops"],
     transportation: null,
     boarding: null,
+    website_url: null,
+    cover_image_url: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.5 },
       { label: "Communication", score: 4.6 },
@@ -74,6 +78,8 @@ export const schoolRecords: SchoolRecord[] = [
     criteria: ["Co-curricular options", "Community continuity"],
     transportation: null,
     boarding: null,
+    website_url: null,
+    cover_image_url: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.4 },
       { label: "Communication", score: 4.3 },
@@ -101,6 +107,8 @@ export const schoolRecords: SchoolRecord[] = [
     criteria: ["Class size", "Workload transparency"],
     transportation: null,
     boarding: null,
+    website_url: null,
+    cover_image_url: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.6 },
       { label: "Communication", score: 4.5 },
@@ -128,6 +136,8 @@ export const schoolRecords: SchoolRecord[] = [
     criteria: ["Exam outcomes", "Guidance quality"],
     transportation: null,
     boarding: null,
+    website_url: null,
+    cover_image_url: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.7 },
       { label: "Communication", score: 4.4 },
@@ -155,6 +165,8 @@ export const schoolRecords: SchoolRecord[] = [
     criteria: ["Home-school communication", "Belonging"],
     transportation: null,
     boarding: null,
+    website_url: null,
+    cover_image_url: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.0 },
       { label: "Communication", score: 4.6 },

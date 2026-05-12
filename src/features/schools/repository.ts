@@ -52,6 +52,8 @@ function rowToSchool(row: Record<string, unknown>): School {
     criteria: (row.criteria as string[]) ?? [],
     transportation: (row.transportation as boolean | null) ?? null,
     boarding: (row.boarding as boolean | null) ?? null,
+    website_url: (row.website_url as string | null) ?? null,
+    cover_image_url: (row.cover_image_url as string | null) ?? null,
   };
 }
 

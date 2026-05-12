@@ -227,10 +227,10 @@ export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
       </section>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-[#0F2540]/10 bg-white">
-        <div className="mx-auto grid w-full max-w-2xl grid-cols-5 px-2 py-2">
+        <div className="mx-auto grid w-full max-w-2xl grid-cols-3 px-2 py-2">
           <BottomItem icon={Compass} label="Explore" active />
-          <BottomItem icon={Scale} label="Compare" />
-          <BottomItem icon={BookMarked} label="Saved" />
+          <div className="hidden" aria-hidden="true"><BottomItem icon={Scale} label="Compare" /></div>
+          <div className="hidden" aria-hidden="true"><BottomItem icon={BookMarked} label="Saved" /></div>
           <BottomItem icon={PencilLine} label="Contribute" />
           <BottomItem icon={GraduationCap} label="Menu" />
         </div>

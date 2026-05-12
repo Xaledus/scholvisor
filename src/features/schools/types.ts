@@ -34,6 +34,8 @@ export type School = {
   criteriaScores: CriterionScore[];
   transportation: boolean | null;
   boarding: boolean | null;
+  website_url: string | null;
+  cover_image_url: string | null;
 };
 
 export type ParentInsight = {

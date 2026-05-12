@@ -37,6 +37,16 @@ export default async function SchoolOverviewPage({ params }: SchoolOverviewPageP
         </p>
         <h1 className="mt-1 text-2xl font-bold text-[#0F2540] sm:text-3xl">{school.name}</h1>
         <p className="mt-2 text-sm leading-relaxed text-[#667085]">{school.summary}</p>
+        {school.website_url && (
+          <a
+            href={school.website_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex text-sm font-medium text-[#1DBAA5]"
+          >
+            Visit official website →
+          </a>
+        )}
 
         <div className="mt-4 flex flex-wrap gap-2">
           {school.fitTags.map((tag) => (
@@ -143,6 +153,16 @@ export default async function SchoolOverviewPage({ params }: SchoolOverviewPageP
           </div>
         </div>
       </section>
+
+      {/* Report error */}
+      <div className="mt-4 text-center">
+        <a
+          href={`mailto:hello@scholvisor.com?subject=${encodeURIComponent(`Error report: ${school.name}`)}`}
+          className="text-xs text-[#667085] underline-offset-2 hover:underline"
+        >
+          Report an error
+        </a>
+      </div>
 
     </main>
   );

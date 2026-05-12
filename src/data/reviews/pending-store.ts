@@ -19,6 +19,7 @@ function rowToStoredReview(row: Record<string, unknown>): StoredReview {
     childGrade: row.child_grade as string,
     attendancePeriod: row.attendance_period as string,
     nationality: (row.nationality as string) ?? "",
+    displayName: (row.display_name as string) ?? "",
     email: row.email as string,
     strengths: (row.strengths as string) ?? "",
     frustrations: (row.frustrations as string) ?? "",
