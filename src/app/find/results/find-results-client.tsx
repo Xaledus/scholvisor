@@ -18,9 +18,10 @@ const MAX_COMPARE = 3;
 type FindResultsClientProps = {
   initialResults: SchoolMatch[];
   criteriaChips: string[];
+  rawParams: string;
 };
 
-export function FindResultsClient({ initialResults, criteriaChips }: FindResultsClientProps) {
+export function FindResultsClient({ initialResults, criteriaChips, rawParams }: FindResultsClientProps) {
   const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
   const [comparedSlugs, setComparedSlugs] = useState<string[]>([]);
 
@@ -81,7 +82,7 @@ export function FindResultsClient({ initialResults, criteriaChips }: FindResults
               </span>
             ))}
           </div>
-          <Link href="/find" className="mt-3 inline-flex text-xs font-semibold text-[#1DBAA5]">
+          <Link href={`/find?${rawParams}`} className="mt-3 inline-flex text-xs font-semibold text-[#1DBAA5]">
             Edit criteria
           </Link>
         </section>

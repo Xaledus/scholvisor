@@ -116,14 +116,19 @@ const BUDGET_FILTERS: Record<string, BudgetFilter> = {
 
 function matchesTerm(s: School, q: string): boolean {
   if (q === "british curriculum") return s.curriculum.includes("British");
-  if (q === "islamic school") return s.islamicEnvironment === "Available";
+  if (q === "islamic school" || q === "islamic")
+    return (
+      s.islamicEnvironment === "Available" ||
+      s.curriculum.some((c) => c.toLowerCase().includes("islamic"))
+    );
   if (q === "near kl") return s.location.toLowerCase().includes("kuala lumpur");
   if (q === "best academics") return true;
   return (
     s.name.toLowerCase().includes(q) ||
     s.location.toLowerCase().includes(q) ||
     s.curriculum.some((c) => c.toLowerCase().includes(q)) ||
-    s.fitTags.some((t) => t.toLowerCase().includes(q))
+    s.fitTags.some((t) => t.toLowerCase().includes(q)) ||
+    s.summary.toLowerCase().includes(q)
   );
 }
 

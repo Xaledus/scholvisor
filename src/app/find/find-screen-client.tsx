@@ -27,20 +27,37 @@ import {
 
 type FindScreenClientProps = {
   popularSearches: string[];
+  initialParams?: Record<string, string>;
 };
 
-export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
+export function FindScreenClient({ popularSearches, initialParams }: FindScreenClientProps) {
   const router = useRouter();
-  const [textQuery, setTextQuery] = useState("");
-  const [activeChips, setActiveChips] = useState<Set<string>>(new Set());
-  const [selectedBudget, setSelectedBudget] = useState(defaultBudgetKey);
-  const [location, setLocation] = useState(defaultFindCriteria.location);
-  const [curriculum, setCurriculum] = useState(defaultFindCriteria.curriculum);
-  const [schoolLevel, setSchoolLevel] = useState(defaultFindCriteria.schoolLevel);
-  const [islamicLevel, setIslamicLevel] = useState(defaultFindCriteria.islamicLevel);
-  const [disciplineLevel, setDisciplineLevel] = useState(defaultFindCriteria.disciplineLevel);
-  const [classSizePreference, setClassSizePreference] = useState(defaultFindCriteria.classSizePreference);
-  const [wellbeingFocus, setWellbeingFocus] = useState(defaultFindCriteria.wellbeingFocus);
+  const [textQuery, setTextQuery] = useState(() => {
+    if (!initialParams?.search) return "";
+    const terms = initialParams.search.split("|").map((t) => t.trim()).filter(Boolean);
+    return terms.filter((t) => !popularSearches.includes(t)).join(" ");
+  });
+  const [activeChips, setActiveChips] = useState<Set<string>>(() => {
+    if (!initialParams?.search) return new Set();
+    const terms = initialParams.search.split("|").map((t) => t.trim()).filter(Boolean);
+    return new Set(terms.filter((t) => popularSearches.includes(t)));
+  });
+  const [selectedBudget, setSelectedBudget] = useState(initialParams?.budget ?? defaultBudgetKey);
+  const [location, setLocation] = useState(initialParams?.location ?? defaultFindCriteria.location);
+  const [curriculum, setCurriculum] = useState(initialParams?.curriculum ?? defaultFindCriteria.curriculum);
+  const [schoolLevel, setSchoolLevel] = useState(initialParams?.schoolLevel ?? defaultFindCriteria.schoolLevel);
+  const [islamicLevel, setIslamicLevel] = useState(
+    initialParams?.islamic != null ? parseInt(initialParams.islamic) : defaultFindCriteria.islamicLevel
+  );
+  const [disciplineLevel, setDisciplineLevel] = useState(
+    initialParams?.discipline != null ? parseInt(initialParams.discipline) : defaultFindCriteria.disciplineLevel
+  );
+  const [classSizePreference, setClassSizePreference] = useState(
+    initialParams?.classSize != null ? parseInt(initialParams.classSize) : defaultFindCriteria.classSizePreference
+  );
+  const [wellbeingFocus, setWellbeingFocus] = useState(
+    initialParams?.wellbeing != null ? parseInt(initialParams.wellbeing) : defaultFindCriteria.wellbeingFocus
+  );
 
   const toggleChip = (chip: string) => {
     setActiveChips((prev) => {

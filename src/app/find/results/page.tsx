@@ -25,5 +25,7 @@ export default async function FindResultsPage({ searchParams }: Props) {
   const results = await schoolRepository.listMatchingSchools(criteria);
   const criteriaChips = buildCriteriaChips(criteria);
 
-  return <FindResultsClient initialResults={results} criteriaChips={criteriaChips} />;
+  const rawParams = new URLSearchParams(sp).toString();
+
+  return <FindResultsClient initialResults={results} criteriaChips={criteriaChips} rawParams={rawParams} />;
 }
