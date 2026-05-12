@@ -48,6 +48,8 @@ export type ParentInsight = {
   quote: string;
   author: string;
   rating: number;
+  strengths?: string;
+  frustrations?: string;
 };
 
 export type SchoolRecord = Omit<School, "id"> & {
