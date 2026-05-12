@@ -178,7 +178,7 @@ export function FindResultsClient({ initialResults, criteriaChips }: FindResults
                     >
                       View details
                     </Link>
-                    {school.website_url && (
+                    {school.website_url && school.website_url.length > 0 && (
                       <a
                         href={school.website_url}
                         target="_blank"

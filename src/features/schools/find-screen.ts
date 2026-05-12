@@ -88,28 +88,30 @@ function calculateMatchScore(school: School, criteria: FindCriteria): number {
 
 function buildWhyMatches(school: School, criteria: FindCriteria): string[] {
   const bullets: string[] = [];
-  if (criteria.islamicLevel >= 1 && school.islamicEnvironment === "Available") {
-    bullets.push(
-      criteria.islamicLevel >= 3
-        ? "Fully Islamic environment matches your preference"
-        : "Balanced Islamic environment with international openness"
-    );
+  if (criteria.curriculum !== "Any" && school.curriculum.some((c) => c.includes(criteria.curriculum))) {
+    bullets.push(`Offers ${criteria.curriculum} curriculum`);
   }
-  bullets.push("Strong academics with personalized learning");
-  bullets.push(
-    school.location.includes("Kuala Lumpur")
-      ? "Popular among expat families near Kuala Lumpur"
-      : "Popular among families seeking a connected school community"
-  );
-  bullets.push("Wide range of extracurricular activities");
-  return bullets;
+  if (criteria.location !== "Any" && school.location === criteria.location) {
+    bullets.push(`Located in ${school.location}`);
+  }
+  if (criteria.islamicLevel >= 2 && school.islamicEnvironment === "Available") {
+    bullets.push("Islamic environment matches your preference");
+  } else if (criteria.islamicLevel === 1 && school.islamicEnvironment === "Available") {
+    bullets.push("Islamic environment available");
+  }
+  for (const tag of school.fitTags.slice(0, 2)) {
+    bullets.push(tag);
+  }
+  return bullets.length > 0 ? bullets : ["Matches your search criteria"];
 }
 
-const BUDGET_RANGES: Record<string, { min: number; max: number }> = {
-  "Under RM20k": { min: 0, max: 20000 },
-  "RM20k-RM40k": { min: 20000, max: 40000 },
-  "RM40k-RM80k": { min: 40000, max: 80000 },
-  "RM80k+": { min: 80000, max: Infinity },
+type BudgetFilter = (priceMin: number | null, priceMax: number | null) => boolean;
+
+const BUDGET_FILTERS: Record<string, BudgetFilter> = {
+  "Under RM20k": (min) => min != null && min < 20000,
+  "RM20k-RM40k": (min, max) => min != null && max != null && min >= 20000 && max <= 40000,
+  "RM40k-RM80k": (min, max) => min != null && max != null && min >= 40000 && max <= 80000,
+  "RM80k+": (min) => min != null && min >= 80000,
 };
 
 function matchesTerm(s: School, q: string): boolean {
@@ -139,17 +141,12 @@ export function selectMatchingSchools(schools: School[], criteria: FindCriteria)
     }
   }
 
-  const budgetRange = BUDGET_RANGES[criteria.budgetLabel];
-  if (budgetRange) {
-    pool = pool.filter(
-      (s) =>
-        s.priceMin == null ||
-        s.priceMax == null ||
-        (s.priceMin <= budgetRange.max && s.priceMax >= budgetRange.min)
-    );
-    console.log("[find] after budget filter:", pool.length, "budget:", criteria.budgetLabel, budgetRange);
+  const budgetFilter = BUDGET_FILTERS[criteria.budgetLabel];
+  if (budgetFilter) {
+    pool = pool.filter((s) => budgetFilter(s.priceMin, s.priceMax));
+    console.log("[find] after budget filter:", pool.length, "budget:", criteria.budgetLabel);
   } else {
-    console.log("[find] no budget range found for:", criteria.budgetLabel);
+    console.log("[find] no budget filter for:", criteria.budgetLabel);
   }
 
   if (criteria.location !== "Any") {

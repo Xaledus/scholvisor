@@ -65,7 +65,7 @@ export function SchoolCard({ school, compared = false, onToggleCompare }: School
 
         {/* Buttons pushed to bottom */}
         <div className="mt-auto pt-4">
-          {school.website_url && (
+          {school.website_url && school.website_url.length > 0 && (
             <a
               href={school.website_url}
               target="_blank"
