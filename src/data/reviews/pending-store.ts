@@ -32,12 +32,41 @@ function rowToStoredReview(row: Record<string, unknown>): StoredReview {
   };
 }
 
+async function resolveSchoolId(slug: string): Promise<string | null> {
+  const db = createServerClient();
+  const { data: exact } = await db
+    .from("schools")
+    .select("id")
+    .eq("slug", slug)
+    .eq("status", "active")
+    .maybeSingle();
+  if (exact?.id) {
+    console.log("[resolveSchoolId] exact match:", slug, "→", exact.id);
+    return exact.id as string;
+  }
+  const { data: fuzzy } = await db
+    .from("schools")
+    .select("id, slug")
+    .like("slug", `${slug}%`)
+    .eq("status", "active")
+    .limit(1)
+    .maybeSingle();
+  if (fuzzy?.id) {
+    console.log("[resolveSchoolId] fuzzy match:", slug, "→", fuzzy.id, "(slug:", fuzzy.slug, ")");
+    return fuzzy.id as string;
+  }
+  console.warn("[resolveSchoolId] no match for slug:", slug);
+  return null;
+}
+
 // Write operations throw — callers (server actions) handle the error.
 export async function addPendingReview(review: StoredReview): Promise<void> {
   const db = createServerClient();
+  const schoolId = await resolveSchoolId(review.schoolSlug);
   const { error } = await db.from("reviews").insert({
     id: review.id,
     school_slug: review.schoolSlug,
+    school_id: schoolId,
     relationship: review.relationship,
     child_grade: review.childGrade,
     attendance_period: review.attendancePeriod,

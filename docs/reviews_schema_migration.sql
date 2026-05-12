@@ -3,6 +3,7 @@
 -- Run in Supabase SQL editor.
 
 ALTER TABLE reviews
+  ADD COLUMN IF NOT EXISTS school_id           uuid REFERENCES schools(id),
   ADD COLUMN IF NOT EXISTS school_slug         text,
   ADD COLUMN IF NOT EXISTS relationship        text,
   ADD COLUMN IF NOT EXISTS child_grade         text,
@@ -25,7 +26,22 @@ ALTER TABLE reviews
   ADD COLUMN IF NOT EXISTS marketing_vs_reality numeric,
   ADD COLUMN IF NOT EXISTS islamic_environment  numeric;
 
--- Verify: check all columns are now present
+-- Fix existing review with null school_id (run once)
+UPDATE reviews
+SET
+  school_id = (
+    SELECT id FROM schools
+    WHERE slug LIKE 'alice-smith%' AND status = 'active'
+    LIMIT 1
+  ),
+  school_slug = (
+    SELECT slug FROM schools
+    WHERE slug LIKE 'alice-smith%' AND status = 'active'
+    LIMIT 1
+  )
+WHERE id = '9470bd1c-2205-4413-9f07-d869e7b155ca';
+
+-- Verify all columns present
 SELECT column_name, data_type, is_nullable
 FROM information_schema.columns
 WHERE table_name = 'reviews'
