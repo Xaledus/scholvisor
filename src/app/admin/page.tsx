@@ -49,6 +49,7 @@ export default async function AdminPage() {
               key={review.id}
               review={review}
               schoolName={getSchoolName(review.schoolSlug)}
+              schoolSlug={review.schoolSlug}
             />
           ))}
         </div>

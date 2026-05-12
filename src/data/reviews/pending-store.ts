@@ -87,6 +87,7 @@ export async function rejectReview(id: string, reason?: string): Promise<void> {
 }
 
 // Read operations return empty on error — pages degrade gracefully rather than crashing.
+// No school_id filter — returns ALL rows where status = 'pending' regardless of school_id.
 export async function listPendingReviews(): Promise<readonly StoredReview[]> {
   try {
     const db = createServerClient();
@@ -95,9 +96,22 @@ export async function listPendingReviews(): Promise<readonly StoredReview[]> {
       .select("*")
       .eq("status", "pending")
       .order("submitted_at", { ascending: false });
-    console.log("[listPendingReviews] rows:", data?.length ?? 0, "error:", error?.message ?? null);
-    if (error) return [];
-    return (data ?? []).map(rowToStoredReview);
+    console.log("[listPendingReviews] raw rows:", data?.length ?? 0, "error:", error?.message ?? null);
+    if (error) {
+      console.error("[listPendingReviews] query error:", error);
+      return [];
+    }
+    const rows = data ?? [];
+    const reviews: StoredReview[] = [];
+    for (const row of rows) {
+      try {
+        reviews.push(rowToStoredReview(row));
+      } catch (e) {
+        console.error("[listPendingReviews] skipped bad row:", row.id, e);
+      }
+    }
+    console.log("[listPendingReviews] parsed:", reviews.length, "of", rows.length);
+    return reviews;
   } catch (e) {
     console.error("[listPendingReviews] caught:", e);
     return [];
