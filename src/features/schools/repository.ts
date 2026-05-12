@@ -54,6 +54,8 @@ function rowToSchool(row: Record<string, unknown>): School {
     boarding: (row.boarding as boolean | null) ?? null,
     website_url: (row.website_url as string | null) ?? null,
     cover_image_url: (row.cover_image_url as string | null) ?? null,
+    priceMin: (row.price_min as number | null) ?? null,
+    priceMax: (row.price_max as number | null) ?? null,
   };
 }
 

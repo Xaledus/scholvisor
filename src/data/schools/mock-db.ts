@@ -22,6 +22,8 @@ export const schoolRecords: SchoolRecord[] = [
     boarding: null,
     website_url: null,
     cover_image_url: null,
+    priceMin: null,
+    priceMax: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.3 },
       { label: "Communication", score: 4.7 },
@@ -51,6 +53,8 @@ export const schoolRecords: SchoolRecord[] = [
     boarding: null,
     website_url: null,
     cover_image_url: null,
+    priceMin: null,
+    priceMax: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.5 },
       { label: "Communication", score: 4.6 },
@@ -80,6 +84,8 @@ export const schoolRecords: SchoolRecord[] = [
     boarding: null,
     website_url: null,
     cover_image_url: null,
+    priceMin: null,
+    priceMax: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.4 },
       { label: "Communication", score: 4.3 },
@@ -109,6 +115,8 @@ export const schoolRecords: SchoolRecord[] = [
     boarding: null,
     website_url: null,
     cover_image_url: null,
+    priceMin: null,
+    priceMax: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.6 },
       { label: "Communication", score: 4.5 },
@@ -138,6 +146,8 @@ export const schoolRecords: SchoolRecord[] = [
     boarding: null,
     website_url: null,
     cover_image_url: null,
+    priceMin: null,
+    priceMax: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.7 },
       { label: "Communication", score: 4.4 },
@@ -167,6 +177,8 @@ export const schoolRecords: SchoolRecord[] = [
     boarding: null,
     website_url: null,
     cover_image_url: null,
+    priceMin: null,
+    priceMax: null,
     criteriaScores: [
       { label: "Academic quality", score: 4.0 },
       { label: "Communication", score: 4.6 },

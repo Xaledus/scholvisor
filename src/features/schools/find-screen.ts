@@ -47,8 +47,11 @@ export const defaultFindCriteria: FindCriteria = {
 };
 
 export function buildCriteriaChips(criteria: FindCriteria): string[] {
+  const searchChips = criteria.searchQuery
+    ? criteria.searchQuery.split("|").map((t) => t.trim()).filter(Boolean).map((t) => `"${t}"`)
+    : [];
   return [
-    criteria.searchQuery ? `"${criteria.searchQuery}"` : null,
+    ...searchChips,
     criteria.budgetLabel,
     criteria.curriculum !== "Any" ? criteria.curriculum : null,
     criteria.location !== "Any" ? criteria.location : null,
@@ -102,29 +105,67 @@ function buildWhyMatches(school: School, criteria: FindCriteria): string[] {
   return bullets;
 }
 
+const BUDGET_RANGES: Record<string, { min: number; max: number }> = {
+  "Under RM20k": { min: 0, max: 20000 },
+  "RM20k-RM40k": { min: 20000, max: 40000 },
+  "RM40k-RM80k": { min: 40000, max: 80000 },
+  "RM80k+": { min: 80000, max: Infinity },
+};
+
+function matchesTerm(s: School, q: string): boolean {
+  if (q === "british curriculum") return s.curriculum.includes("British");
+  if (q === "islamic school") return s.islamicEnvironment === "Available";
+  if (q === "near kl") return s.location.toLowerCase().includes("kuala lumpur");
+  if (q === "best academics") return true;
+  return (
+    s.name.toLowerCase().includes(q) ||
+    s.location.toLowerCase().includes(q) ||
+    s.curriculum.some((c) => c.toLowerCase().includes(q)) ||
+    s.fitTags.some((t) => t.toLowerCase().includes(q))
+  );
+}
+
 export function selectMatchingSchools(schools: School[], criteria: FindCriteria): SchoolMatch[] {
+  console.log("[find] criteria:", criteria);
+  console.log("[find] total schools in pool:", schools.length);
+
   let pool = schools;
 
   if (criteria.searchQuery) {
-    const q = criteria.searchQuery.toLowerCase();
+    const terms = criteria.searchQuery.split("|").map((t) => t.trim().toLowerCase()).filter(Boolean);
+    if (terms.length > 0) {
+      pool = pool.filter((s) => terms.some((q) => matchesTerm(s, q)));
+      console.log("[find] after search filter:", pool.length, "terms:", terms);
+    }
+  }
+
+  const budgetRange = BUDGET_RANGES[criteria.budgetLabel];
+  if (budgetRange) {
     pool = pool.filter(
       (s) =>
-        s.name.toLowerCase().includes(q) ||
-        s.location.toLowerCase().includes(q) ||
-        s.curriculum.some((c) => c.toLowerCase().includes(q)) ||
-        s.fitTags.some((t) => t.toLowerCase().includes(q))
+        s.priceMin == null ||
+        s.priceMax == null ||
+        (s.priceMin <= budgetRange.max && s.priceMax >= budgetRange.min)
     );
+    console.log("[find] after budget filter:", pool.length, "budget:", criteria.budgetLabel, budgetRange);
+  } else {
+    console.log("[find] no budget range found for:", criteria.budgetLabel);
   }
+
   if (criteria.location !== "Any") {
     pool = pool.filter((s) => s.location === criteria.location);
+    console.log("[find] after location filter:", pool.length);
   }
   if (criteria.curriculum !== "Any") {
     pool = pool.filter((s) => s.curriculum.some((c) => c.includes(criteria.curriculum)));
+    console.log("[find] after curriculum filter:", pool.length);
   }
   if (criteria.schoolLevel !== "Any") {
     pool = pool.filter((s) => s.schoolLevel === criteria.schoolLevel);
+    console.log("[find] after schoolLevel filter:", pool.length);
   }
 
+  console.log("[find] final results:", pool.length);
   return pool
     .map((school) => ({
       school,

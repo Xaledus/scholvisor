@@ -31,7 +31,8 @@ type FindScreenClientProps = {
 
 export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [textQuery, setTextQuery] = useState("");
+  const [activeChips, setActiveChips] = useState<Set<string>>(new Set());
   const [selectedBudget, setSelectedBudget] = useState(defaultBudgetKey);
   const [location, setLocation] = useState(defaultFindCriteria.location);
   const [curriculum, setCurriculum] = useState(defaultFindCriteria.curriculum);
@@ -40,6 +41,14 @@ export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
   const [disciplineLevel, setDisciplineLevel] = useState(defaultFindCriteria.disciplineLevel);
   const [classSizePreference, setClassSizePreference] = useState(defaultFindCriteria.classSizePreference);
   const [wellbeingFocus, setWellbeingFocus] = useState(defaultFindCriteria.wellbeingFocus);
+
+  const toggleChip = (chip: string) => {
+    setActiveChips((prev) => {
+      const next = new Set(prev);
+      next.has(chip) ? next.delete(chip) : next.add(chip);
+      return next;
+    });
+  };
 
   const handleShowResults = () => {
     const params = new URLSearchParams({
@@ -52,7 +61,8 @@ export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
       classSize: String(classSizePreference),
       wellbeing: String(wellbeingFocus),
     });
-    if (searchQuery.trim()) params.set("search", searchQuery.trim());
+    const allTerms = [textQuery.trim(), ...activeChips].filter(Boolean);
+    if (allTerms.length > 0) params.set("search", allTerms.join("|"));
     router.push(`/find/results?${params.toString()}`);
   };
 
@@ -87,16 +97,16 @@ export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
           <label className="flex items-center gap-2 rounded-2xl border border-[#0F2540]/15 bg-[#F2F4F7] px-4 py-3 focus-within:border-[#1DBAA5]">
             <Search className="h-4 w-4 shrink-0 text-[#667085]" />
             <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={textQuery}
+              onChange={(e) => setTextQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleShowResults()}
               placeholder="Search by school name or keyword"
               className="w-full bg-transparent text-sm text-[#0F2540] outline-none placeholder:text-[#667085]"
             />
-            {searchQuery && (
+            {textQuery && (
               <button
                 type="button"
-                onClick={() => setSearchQuery("")}
+                onClick={() => setTextQuery("")}
                 className="shrink-0 text-[#667085] hover:text-[#0F2540]"
                 aria-label="Clear search"
               >
@@ -114,9 +124,9 @@ export function FindScreenClient({ popularSearches }: FindScreenClientProps) {
               <button
                 key={search}
                 type="button"
-                onClick={() => setSearchQuery(search)}
+                onClick={() => toggleChip(search)}
                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                  searchQuery === search
+                  activeChips.has(search)
                     ? "border-[#1DBAA5] bg-[#E3F3EF] text-[#0F2540]"
                     : "border-[#0F2540]/15 bg-white text-[#0F2540]"
                 }`}

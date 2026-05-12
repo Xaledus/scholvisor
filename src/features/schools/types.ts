@@ -36,6 +36,8 @@ export type School = {
   boarding: boolean | null;
   website_url: string | null;
   cover_image_url: string | null;
+  priceMin: number | null;
+  priceMax: number | null;
 };
 
 export type ParentInsight = {
