@@ -119,15 +119,7 @@ export function FindResultsClient({ initialResults, criteriaChips, rawParams }: 
                     </button>
                   </div>
 
-                  {school.cover_image_url ? (
-                    <img
-                      src={school.cover_image_url}
-                      alt=""
-                      className="mt-3 h-[200px] w-full rounded-xl object-cover"
-                    />
-                  ) : (
-                    <div className="mt-3 h-[60px] rounded-xl bg-gradient-to-r from-[#1DBAA5]/70 to-[#E3F3EF]" />
-                  )}
+                  <div className="mt-3 h-[60px] rounded-xl bg-gradient-to-r from-[#1DBAA5]/70 to-[#E3F3EF]" />
 
                   <h3 className="mt-3 text-lg font-semibold text-[#0F2540]">{school.name}</h3>
                   <p className="text-sm text-[#667085]">

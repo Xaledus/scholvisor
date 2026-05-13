@@ -31,7 +31,9 @@ export default async function SchoolOverviewPage({ params }: SchoolOverviewPageP
     <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
 
       {/* School header */}
-      <section className="rounded-3xl bg-white p-6 shadow-sm">
+      <section className="overflow-hidden rounded-3xl bg-white shadow-sm">
+        <div className="h-[200px] w-full bg-gradient-to-r from-[#1DBAA5]/70 to-[#E3F3EF]" />
+        <div className="p-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-[#1DBAA5]">
           {school.location} · {school.schoolLevel}
         </p>
@@ -52,6 +54,7 @@ export default async function SchoolOverviewPage({ params }: SchoolOverviewPageP
           {school.fitTags.map((tag) => (
             <Badge key={tag}>{tag}</Badge>
           ))}
+        </div>
         </div>
       </section>
 

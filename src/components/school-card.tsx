@@ -14,16 +14,7 @@ type SchoolCardProps = {
 export function SchoolCard({ school, compared = false, onToggleCompare }: SchoolCardProps) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-[#0F2540]/10 bg-white shadow-sm">
-      {/* Image zone: full image when available, slim gradient otherwise */}
-      {school.cover_image_url ? (
-        <img
-          src={school.cover_image_url}
-          alt=""
-          className="h-[200px] w-full object-cover"
-        />
-      ) : (
-        <div className="h-[60px] w-full bg-gradient-to-r from-[#1DBAA5]/70 to-[#E3F3EF]" />
-      )}
+      <div className="h-[60px] w-full bg-gradient-to-r from-[#1DBAA5]/70 to-[#E3F3EF]" />
 
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-3">
