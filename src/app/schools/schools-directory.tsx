@@ -26,10 +26,20 @@ const FILTER_GROUPS = [
   { label: "School level", cat: "level",    chips: LEVEL_CHIPS },
 ] as const;
 
+function isIslamicSchool(school: School): boolean {
+  return (
+    school.curriculum.some((c) => c.toLowerCase().includes("islamic")) ||
+    school.islamicEnvironment.toLowerCase().includes("islamic") ||
+    school.name.toLowerCase().includes("islamic") ||
+    school.name.toLowerCase().includes("muslim")
+  );
+}
+
 function matchCurriculumChip(chip: string, school: School): boolean {
   if (chip === "A-Levels" || chip === "IGCSE") {
     return school.curriculum.some((c) => ["British", "Cambridge"].includes(c));
   }
+  if (chip === "Islamic") return isIslamicSchool(school);
   return school.curriculum.some((c) => c === chip);
 }
 

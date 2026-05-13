@@ -63,9 +63,18 @@ export function buildCriteriaChips(criteria: FindCriteria): string[] {
   ].filter((v): v is string => v !== null);
 }
 
+function isIslamicSchool(s: School): boolean {
+  return (
+    s.curriculum.some((c) => c.toLowerCase().includes("islamic")) ||
+    s.islamicEnvironment.toLowerCase().includes("islamic") ||
+    s.name.toLowerCase().includes("islamic") ||
+    s.name.toLowerCase().includes("muslim")
+  );
+}
+
 export function selectPopularSearchChips(schools: School[]): string[] {
   const hasBritish = schools.some((school) => school.curriculum.includes("British"));
-  const hasIslamic = schools.some((school) => school.islamicEnvironment === "Available");
+  const hasIslamic = schools.some(isIslamicSchool);
   const hasKL = schools.some((school) => school.location.includes("Kuala Lumpur"));
 
   return [
@@ -80,7 +89,7 @@ function calculateMatchScore(school: School, criteria: FindCriteria): number {
   let score = 72 + Math.round(school.rating * 4);
   if (criteria.location !== "Any" && school.location === criteria.location) score += 7;
   if (criteria.curriculum !== "Any" && school.curriculum.some((c) => c.includes(criteria.curriculum))) score += 6;
-  if (criteria.islamicLevel >= 1 && school.islamicEnvironment === "Available") {
+  if (criteria.islamicLevel >= 1 && isIslamicSchool(school)) {
     score += criteria.islamicLevel * 2;
   }
   return Math.min(98, score);
@@ -94,9 +103,9 @@ function buildWhyMatches(school: School, criteria: FindCriteria): string[] {
   if (criteria.location !== "Any" && school.location === criteria.location) {
     bullets.push(`Located in ${school.location}`);
   }
-  if (criteria.islamicLevel >= 2 && school.islamicEnvironment === "Available") {
+  if (criteria.islamicLevel >= 2 && isIslamicSchool(school)) {
     bullets.push("Islamic environment matches your preference");
-  } else if (criteria.islamicLevel === 1 && school.islamicEnvironment === "Available") {
+  } else if (criteria.islamicLevel === 1 && isIslamicSchool(school)) {
     bullets.push("Islamic environment available");
   }
   for (const tag of school.fitTags.slice(0, 2)) {
@@ -117,10 +126,7 @@ const BUDGET_FILTERS: Record<string, BudgetFilter> = {
 function matchesTerm(s: School, q: string): boolean {
   if (q === "british curriculum") return s.curriculum.includes("British");
   if (q === "islamic school" || q === "islamic")
-    return (
-      s.islamicEnvironment === "Available" ||
-      s.curriculum.some((c) => c.toLowerCase().includes("islamic"))
-    );
+    return isIslamicSchool(s);
   if (q === "near kl") return s.location.toLowerCase().includes("kuala lumpur");
   if (q === "best academics") return true;
   return (
@@ -159,7 +165,11 @@ export function selectMatchingSchools(schools: School[], criteria: FindCriteria)
     console.log("[find] after location filter:", pool.length);
   }
   if (criteria.curriculum !== "Any") {
-    pool = pool.filter((s) => s.curriculum.some((c) => c.includes(criteria.curriculum)));
+    pool = pool.filter((s) =>
+      criteria.curriculum === "Islamic"
+        ? isIslamicSchool(s)
+        : s.curriculum.some((c) => c.includes(criteria.curriculum))
+    );
     console.log("[find] after curriculum filter:", pool.length);
   }
   if (criteria.schoolLevel !== "Any") {
