@@ -19,6 +19,7 @@ function rowToStoredReview(row: Record<string, unknown>): StoredReview {
     childGrade: row.child_grade as string,
     attendancePeriod: row.attendance_period as string,
     nationality: (row.nationality as string) ?? "",
+    displayName: (row.display_name as string) ?? "",
     email: row.email as string,
     strengths: (row.strengths as string) ?? "",
     frustrations: (row.frustrations as string) ?? "",
@@ -31,16 +32,46 @@ function rowToStoredReview(row: Record<string, unknown>): StoredReview {
   };
 }
 
+async function resolveSchoolId(slug: string): Promise<string | null> {
+  const db = createServerClient();
+  const { data: exact } = await db
+    .from("schools")
+    .select("id")
+    .eq("slug", slug)
+    .eq("status", "active")
+    .maybeSingle();
+  if (exact?.id) {
+    console.log("[resolveSchoolId] exact match:", slug, "→", exact.id);
+    return exact.id as string;
+  }
+  const { data: fuzzy } = await db
+    .from("schools")
+    .select("id, slug")
+    .like("slug", `${slug}%`)
+    .eq("status", "active")
+    .limit(1)
+    .maybeSingle();
+  if (fuzzy?.id) {
+    console.log("[resolveSchoolId] fuzzy match:", slug, "→", fuzzy.id, "(slug:", fuzzy.slug, ")");
+    return fuzzy.id as string;
+  }
+  console.warn("[resolveSchoolId] no match for slug:", slug);
+  return null;
+}
+
 // Write operations throw — callers (server actions) handle the error.
 export async function addPendingReview(review: StoredReview): Promise<void> {
   const db = createServerClient();
+  const schoolId = await resolveSchoolId(review.schoolSlug);
   const { error } = await db.from("reviews").insert({
     id: review.id,
     school_slug: review.schoolSlug,
+    school_id: schoolId,
     relationship: review.relationship,
     child_grade: review.childGrade,
     attendance_period: review.attendancePeriod,
     nationality: review.nationality || null,
+    display_name: review.displayName || null,
     email: review.email,
     strengths: review.strengths || null,
     frustrations: review.frustrations || null,
@@ -55,7 +86,11 @@ export async function addPendingReview(review: StoredReview): Promise<void> {
     marketing_vs_reality: review.criteriaScores.marketingVsReality,
     islamic_environment: review.criteriaScores.islamicEnvironment,
   });
-  if (error) throw new Error(`addPendingReview: ${error.message}`);
+  if (error) {
+    console.error("[addPendingReview] insert error:", error.message, error.details);
+    throw new Error(`addPendingReview: ${error.message}`);
+  }
+  console.log("[addPendingReview] saved review:", review.id);
 }
 
 export async function approveReview(id: string): Promise<void> {
@@ -81,6 +116,7 @@ export async function rejectReview(id: string, reason?: string): Promise<void> {
 }
 
 // Read operations return empty on error — pages degrade gracefully rather than crashing.
+// No school_id filter — returns ALL rows where status = 'pending' regardless of school_id.
 export async function listPendingReviews(): Promise<readonly StoredReview[]> {
   try {
     const db = createServerClient();
@@ -89,9 +125,24 @@ export async function listPendingReviews(): Promise<readonly StoredReview[]> {
       .select("*")
       .eq("status", "pending")
       .order("submitted_at", { ascending: false });
-    if (error) return [];
-    return (data ?? []).map(rowToStoredReview);
-  } catch {
+    console.log("[listPendingReviews] raw rows:", data?.length ?? 0, "error:", error?.message ?? null);
+    if (error) {
+      console.error("[listPendingReviews] query error:", error);
+      return [];
+    }
+    const rows = data ?? [];
+    const reviews: StoredReview[] = [];
+    for (const row of rows) {
+      try {
+        reviews.push(rowToStoredReview(row));
+      } catch (e) {
+        console.error("[listPendingReviews] skipped bad row:", row.id, e);
+      }
+    }
+    console.log("[listPendingReviews] parsed:", reviews.length, "of", rows.length);
+    return reviews;
+  } catch (e) {
+    console.error("[listPendingReviews] caught:", e);
     return [];
   }
 }

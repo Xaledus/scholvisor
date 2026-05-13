@@ -34,6 +34,10 @@ export type School = {
   criteriaScores: CriterionScore[];
   transportation: boolean | null;
   boarding: boolean | null;
+  website_url: string | null;
+  cover_image_url: string | null;
+  priceMin: number | null;
+  priceMax: number | null;
 };
 
 export type ParentInsight = {
@@ -44,6 +48,8 @@ export type ParentInsight = {
   quote: string;
   author: string;
   rating: number;
+  strengths?: string;
+  frustrations?: string;
 };
 
 export type SchoolRecord = Omit<School, "id"> & {

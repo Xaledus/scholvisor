@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, X } from "lucide-react";
 import { ReviewIllustration } from "@/components/ui/illustrations";
 import { StarSelector } from "@/components/ui/star-selector";
 import {
   childGradeOptions,
   MAX_TEXT_LENGTH,
   requiredCriteriaKeys,
-  reviewCriteria
+  reviewCriteria,
 } from "@/features/reviews/schemas";
 import type { CriteriaScores, ReviewFormData } from "@/features/reviews/types";
 import type { School } from "@/features/schools/types";
@@ -19,6 +19,208 @@ import { submitReview } from "./actions";
 
 const TOTAL_STEPS = 4;
 
+const COUNTRIES = [
+  { code: "AF", flag: "🇦🇫", name: "Afghan" },
+  { code: "AL", flag: "🇦🇱", name: "Albanian" },
+  { code: "DZ", flag: "🇩🇿", name: "Algerian" },
+  { code: "AD", flag: "🇦🇩", name: "Andorran" },
+  { code: "AO", flag: "🇦🇴", name: "Angolan" },
+  { code: "AG", flag: "🇦🇬", name: "Antiguan" },
+  { code: "AR", flag: "🇦🇷", name: "Argentine" },
+  { code: "AM", flag: "🇦🇲", name: "Armenian" },
+  { code: "AU", flag: "🇦🇺", name: "Australian" },
+  { code: "AT", flag: "🇦🇹", name: "Austrian" },
+  { code: "AZ", flag: "🇦🇿", name: "Azerbaijani" },
+  { code: "BS", flag: "🇧🇸", name: "Bahamian" },
+  { code: "BH", flag: "🇧🇭", name: "Bahraini" },
+  { code: "BD", flag: "🇧🇩", name: "Bangladeshi" },
+  { code: "BB", flag: "🇧🇧", name: "Barbadian" },
+  { code: "BY", flag: "🇧🇾", name: "Belarusian" },
+  { code: "BE", flag: "🇧🇪", name: "Belgian" },
+  { code: "BZ", flag: "🇧🇿", name: "Belizean" },
+  { code: "BJ", flag: "🇧🇯", name: "Beninese" },
+  { code: "BT", flag: "🇧🇹", name: "Bhutanese" },
+  { code: "BO", flag: "🇧🇴", name: "Bolivian" },
+  { code: "BA", flag: "🇧🇦", name: "Bosnian" },
+  { code: "BW", flag: "🇧🇼", name: "Botswanan" },
+  { code: "BR", flag: "🇧🇷", name: "Brazilian" },
+  { code: "BN", flag: "🇧🇳", name: "Bruneian" },
+  { code: "BG", flag: "🇧🇬", name: "Bulgarian" },
+  { code: "BF", flag: "🇧🇫", name: "Burkinabé" },
+  { code: "BI", flag: "🇧🇮", name: "Burundian" },
+  { code: "CV", flag: "🇨🇻", name: "Cape Verdean" },
+  { code: "KH", flag: "🇰🇭", name: "Cambodian" },
+  { code: "CM", flag: "🇨🇲", name: "Cameroonian" },
+  { code: "CA", flag: "🇨🇦", name: "Canadian" },
+  { code: "CF", flag: "🇨🇫", name: "Central African" },
+  { code: "TD", flag: "🇹🇩", name: "Chadian" },
+  { code: "CL", flag: "🇨🇱", name: "Chilean" },
+  { code: "CN", flag: "🇨🇳", name: "Chinese" },
+  { code: "CO", flag: "🇨🇴", name: "Colombian" },
+  { code: "KM", flag: "🇰🇲", name: "Comorian" },
+  { code: "CD", flag: "🇨🇩", name: "Congolese (DRC)" },
+  { code: "CG", flag: "🇨🇬", name: "Congolese" },
+  { code: "CR", flag: "🇨🇷", name: "Costa Rican" },
+  { code: "HR", flag: "🇭🇷", name: "Croatian" },
+  { code: "CU", flag: "🇨🇺", name: "Cuban" },
+  { code: "CY", flag: "🇨🇾", name: "Cypriot" },
+  { code: "CZ", flag: "🇨🇿", name: "Czech" },
+  { code: "DK", flag: "🇩🇰", name: "Danish" },
+  { code: "DJ", flag: "🇩🇯", name: "Djiboutian" },
+  { code: "DM", flag: "🇩🇲", name: "Dominican" },
+  { code: "DO", flag: "🇩🇴", name: "Dominican (Rep.)" },
+  { code: "EC", flag: "🇪🇨", name: "Ecuadorian" },
+  { code: "EG", flag: "🇪🇬", name: "Egyptian" },
+  { code: "SV", flag: "🇸🇻", name: "Salvadoran" },
+  { code: "GQ", flag: "🇬🇶", name: "Equatoguinean" },
+  { code: "ER", flag: "🇪🇷", name: "Eritrean" },
+  { code: "EE", flag: "🇪🇪", name: "Estonian" },
+  { code: "SZ", flag: "🇸🇿", name: "Swazi" },
+  { code: "ET", flag: "🇪🇹", name: "Ethiopian" },
+  { code: "FJ", flag: "🇫🇯", name: "Fijian" },
+  { code: "FI", flag: "🇫🇮", name: "Finnish" },
+  { code: "FR", flag: "🇫🇷", name: "French" },
+  { code: "GA", flag: "🇬🇦", name: "Gabonese" },
+  { code: "GM", flag: "🇬🇲", name: "Gambian" },
+  { code: "GE", flag: "🇬🇪", name: "Georgian" },
+  { code: "DE", flag: "🇩🇪", name: "German" },
+  { code: "GH", flag: "🇬🇭", name: "Ghanaian" },
+  { code: "GR", flag: "🇬🇷", name: "Greek" },
+  { code: "GD", flag: "🇬🇩", name: "Grenadian" },
+  { code: "GT", flag: "🇬🇹", name: "Guatemalan" },
+  { code: "GN", flag: "🇬🇳", name: "Guinean" },
+  { code: "GW", flag: "🇬🇼", name: "Guinea-Bissauan" },
+  { code: "GY", flag: "🇬🇾", name: "Guyanese" },
+  { code: "HT", flag: "🇭🇹", name: "Haitian" },
+  { code: "HN", flag: "🇭🇳", name: "Honduran" },
+  { code: "HU", flag: "🇭🇺", name: "Hungarian" },
+  { code: "IS", flag: "🇮🇸", name: "Icelandic" },
+  { code: "IN", flag: "🇮🇳", name: "Indian" },
+  { code: "ID", flag: "🇮🇩", name: "Indonesian" },
+  { code: "IR", flag: "🇮🇷", name: "Iranian" },
+  { code: "IQ", flag: "🇮🇶", name: "Iraqi" },
+  { code: "IE", flag: "🇮🇪", name: "Irish" },
+  { code: "IL", flag: "🇮🇱", name: "Israeli" },
+  { code: "IT", flag: "🇮🇹", name: "Italian" },
+  { code: "JM", flag: "🇯🇲", name: "Jamaican" },
+  { code: "JP", flag: "🇯🇵", name: "Japanese" },
+  { code: "JO", flag: "🇯🇴", name: "Jordanian" },
+  { code: "KZ", flag: "🇰🇿", name: "Kazakhstani" },
+  { code: "KE", flag: "🇰🇪", name: "Kenyan" },
+  { code: "KI", flag: "🇰🇮", name: "I-Kiribati" },
+  { code: "KW", flag: "🇰🇼", name: "Kuwaiti" },
+  { code: "KG", flag: "🇰🇬", name: "Kyrgyz" },
+  { code: "LA", flag: "🇱🇦", name: "Laotian" },
+  { code: "LV", flag: "🇱🇻", name: "Latvian" },
+  { code: "LB", flag: "🇱🇧", name: "Lebanese" },
+  { code: "LS", flag: "🇱🇸", name: "Basotho" },
+  { code: "LR", flag: "🇱🇷", name: "Liberian" },
+  { code: "LY", flag: "🇱🇾", name: "Libyan" },
+  { code: "LI", flag: "🇱🇮", name: "Liechtensteiner" },
+  { code: "LT", flag: "🇱🇹", name: "Lithuanian" },
+  { code: "LU", flag: "🇱🇺", name: "Luxembourgish" },
+  { code: "MG", flag: "🇲🇬", name: "Malagasy" },
+  { code: "MW", flag: "🇲🇼", name: "Malawian" },
+  { code: "MY", flag: "🇲🇾", name: "Malaysian" },
+  { code: "MV", flag: "🇲🇻", name: "Maldivian" },
+  { code: "ML", flag: "🇲🇱", name: "Malian" },
+  { code: "MT", flag: "🇲🇹", name: "Maltese" },
+  { code: "MH", flag: "🇲🇭", name: "Marshallese" },
+  { code: "MR", flag: "🇲🇷", name: "Mauritanian" },
+  { code: "MU", flag: "🇲🇺", name: "Mauritian" },
+  { code: "MX", flag: "🇲🇽", name: "Mexican" },
+  { code: "FM", flag: "🇫🇲", name: "Micronesian" },
+  { code: "MD", flag: "🇲🇩", name: "Moldovan" },
+  { code: "MC", flag: "🇲🇨", name: "Monégasque" },
+  { code: "MN", flag: "🇲🇳", name: "Mongolian" },
+  { code: "ME", flag: "🇲🇪", name: "Montenegrin" },
+  { code: "MA", flag: "🇲🇦", name: "Moroccan" },
+  { code: "MZ", flag: "🇲🇿", name: "Mozambican" },
+  { code: "MM", flag: "🇲🇲", name: "Myanmar" },
+  { code: "NA", flag: "🇳🇦", name: "Namibian" },
+  { code: "NR", flag: "🇳🇷", name: "Nauruan" },
+  { code: "NP", flag: "🇳🇵", name: "Nepali" },
+  { code: "NL", flag: "🇳🇱", name: "Dutch" },
+  { code: "NZ", flag: "🇳🇿", name: "New Zealander" },
+  { code: "NI", flag: "🇳🇮", name: "Nicaraguan" },
+  { code: "NE", flag: "🇳🇪", name: "Nigerien" },
+  { code: "NG", flag: "🇳🇬", name: "Nigerian" },
+  { code: "NO", flag: "🇳🇴", name: "Norwegian" },
+  { code: "OM", flag: "🇴🇲", name: "Omani" },
+  { code: "PK", flag: "🇵🇰", name: "Pakistani" },
+  { code: "PW", flag: "🇵🇼", name: "Palauan" },
+  { code: "PS", flag: "🇵🇸", name: "Palestinian" },
+  { code: "PA", flag: "🇵🇦", name: "Panamanian" },
+  { code: "PG", flag: "🇵🇬", name: "Papua New Guinean" },
+  { code: "PY", flag: "🇵🇾", name: "Paraguayan" },
+  { code: "PE", flag: "🇵🇪", name: "Peruvian" },
+  { code: "PH", flag: "🇵🇭", name: "Filipino" },
+  { code: "PL", flag: "🇵🇱", name: "Polish" },
+  { code: "PT", flag: "🇵🇹", name: "Portuguese" },
+  { code: "QA", flag: "🇶🇦", name: "Qatari" },
+  { code: "RO", flag: "🇷🇴", name: "Romanian" },
+  { code: "RU", flag: "🇷🇺", name: "Russian" },
+  { code: "RW", flag: "🇷🇼", name: "Rwandan" },
+  { code: "KN", flag: "🇰🇳", name: "Kittitian" },
+  { code: "LC", flag: "🇱🇨", name: "Saint Lucian" },
+  { code: "VC", flag: "🇻🇨", name: "Vincentian" },
+  { code: "WS", flag: "🇼🇸", name: "Samoan" },
+  { code: "SM", flag: "🇸🇲", name: "Sammarinese" },
+  { code: "ST", flag: "🇸🇹", name: "São Toméan" },
+  { code: "SA", flag: "🇸🇦", name: "Saudi" },
+  { code: "SN", flag: "🇸🇳", name: "Senegalese" },
+  { code: "RS", flag: "🇷🇸", name: "Serbian" },
+  { code: "SC", flag: "🇸🇨", name: "Seychellois" },
+  { code: "SL", flag: "🇸🇱", name: "Sierra Leonean" },
+  { code: "SG", flag: "🇸🇬", name: "Singaporean" },
+  { code: "SK", flag: "🇸🇰", name: "Slovak" },
+  { code: "SI", flag: "🇸🇮", name: "Slovenian" },
+  { code: "SB", flag: "🇸🇧", name: "Solomon Islander" },
+  { code: "SO", flag: "🇸🇴", name: "Somali" },
+  { code: "ZA", flag: "🇿🇦", name: "South African" },
+  { code: "SS", flag: "🇸🇸", name: "South Sudanese" },
+  { code: "ES", flag: "🇪🇸", name: "Spanish" },
+  { code: "LK", flag: "🇱🇰", name: "Sri Lankan" },
+  { code: "SD", flag: "🇸🇩", name: "Sudanese" },
+  { code: "SR", flag: "🇸🇷", name: "Surinamese" },
+  { code: "SE", flag: "🇸🇪", name: "Swedish" },
+  { code: "CH", flag: "🇨🇭", name: "Swiss" },
+  { code: "SY", flag: "🇸🇾", name: "Syrian" },
+  { code: "TW", flag: "🇹🇼", name: "Taiwanese" },
+  { code: "TJ", flag: "🇹🇯", name: "Tajik" },
+  { code: "TZ", flag: "🇹🇿", name: "Tanzanian" },
+  { code: "TH", flag: "🇹🇭", name: "Thai" },
+  { code: "TL", flag: "🇹🇱", name: "Timorese" },
+  { code: "TG", flag: "🇹🇬", name: "Togolese" },
+  { code: "TO", flag: "🇹🇴", name: "Tongan" },
+  { code: "TT", flag: "🇹🇹", name: "Trinidadian" },
+  { code: "TN", flag: "🇹🇳", name: "Tunisian" },
+  { code: "TR", flag: "🇹🇷", name: "Turkish" },
+  { code: "TM", flag: "🇹🇲", name: "Turkmen" },
+  { code: "TV", flag: "🇹🇻", name: "Tuvaluan" },
+  { code: "UG", flag: "🇺🇬", name: "Ugandan" },
+  { code: "UA", flag: "🇺🇦", name: "Ukrainian" },
+  { code: "AE", flag: "🇦🇪", name: "Emirati" },
+  { code: "GB", flag: "🇬🇧", name: "British" },
+  { code: "US", flag: "🇺🇸", name: "American" },
+  { code: "UY", flag: "🇺🇾", name: "Uruguayan" },
+  { code: "UZ", flag: "🇺🇿", name: "Uzbek" },
+  { code: "VU", flag: "🇻🇺", name: "Vanuatuan" },
+  { code: "VE", flag: "🇻🇪", name: "Venezuelan" },
+  { code: "VN", flag: "🇻🇳", name: "Vietnamese" },
+  { code: "YE", flag: "🇾🇪", name: "Yemeni" },
+  { code: "ZM", flag: "🇿🇲", name: "Zambian" },
+  { code: "ZW", flag: "🇿🇼", name: "Zimbabwean" },
+  { code: "KP", flag: "🇰🇵", name: "North Korean" },
+  { code: "KR", flag: "🇰🇷", name: "Korean" },
+];
+
+type Country = (typeof COUNTRIES)[0];
+
+function generateDisplayName(): string {
+  return `CuriousParentKL${String(Math.floor(Math.random() * 90) + 10)}`;
+}
+
 const initialScores: CriteriaScores = {
   academicQuality: null,
   communicationAdmin: null,
@@ -26,7 +228,7 @@ const initialScores: CriteriaScores = {
   facilitiesActivities: null,
   valueForMoney: null,
   marketingVsReality: null,
-  islamicEnvironment: null
+  islamicEnvironment: null,
 };
 
 const emptyForm: ReviewFormData = {
@@ -35,11 +237,12 @@ const emptyForm: ReviewFormData = {
   childGrade: "",
   attendancePeriod: "",
   nationality: "",
+  displayName: "",
   email: "",
   strengths: "",
   frustrations: "",
   criteriaScores: initialScores,
-  consentGiven: false
+  consentGiven: false,
 };
 
 // ─── component ────────────────────────────────────────────────────────────────
@@ -55,14 +258,67 @@ export function ReviewForm({ schools }: ReviewFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [successId, setSuccessId] = useState<string | null>(null);
 
+  // School search state
+  const [schoolQuery, setSchoolQuery] = useState("");
+  const [showSchoolList, setShowSchoolList] = useState(false);
+  const schoolInputRef = useRef<HTMLInputElement>(null);
+
+  // Nationality selector state
+  const [natQuery, setNatQuery] = useState("");
+  const [showNatList, setShowNatList] = useState(false);
+  const [selectedNats, setSelectedNats] = useState<Country[]>([]);
+
   const patch = (fields: Partial<ReviewFormData>) =>
     setForm((prev) => ({ ...prev, ...fields }));
 
   const patchScore = (key: keyof CriteriaScores, value: number | null) =>
     setForm((prev) => ({
       ...prev,
-      criteriaScores: { ...prev.criteriaScores, [key]: value }
+      criteriaScores: { ...prev.criteriaScores, [key]: value },
     }));
+
+  // School search helpers
+  const selectedSchool = schools.find((s) => s.slug === form.schoolSlug) ?? null;
+  const filteredSchools =
+    schoolQuery && !form.schoolSlug
+      ? schools
+          .filter(
+            (s) =>
+              s.name.toLowerCase().includes(schoolQuery.toLowerCase()) ||
+              s.location.toLowerCase().includes(schoolQuery.toLowerCase())
+          )
+          .slice(0, 8)
+      : [];
+
+  const selectSchool = (s: School) => {
+    patch({ schoolSlug: s.slug });
+    setSchoolQuery(s.name);
+    setShowSchoolList(false);
+  };
+
+  // Nationality helpers
+  const filteredCountries = natQuery
+    ? COUNTRIES.filter(
+        (c) =>
+          c.name.toLowerCase().startsWith(natQuery.toLowerCase()) &&
+          !selectedNats.some((n) => n.code === c.code)
+      ).slice(0, 8)
+    : [];
+
+  const addNat = (c: Country) => {
+    if (selectedNats.length >= 2) return;
+    const next = [...selectedNats, c];
+    setSelectedNats(next);
+    patch({ nationality: next.map((n) => n.name).join(", ") });
+    setNatQuery("");
+    setShowNatList(false);
+  };
+
+  const removeNat = (code: string) => {
+    const next = selectedNats.filter((n) => n.code !== code);
+    setSelectedNats(next);
+    patch({ nationality: next.map((n) => n.name).join(", ") });
+  };
 
   function validateStep(s: number): Record<string, string> {
     const errs: Record<string, string> = {};
@@ -95,6 +351,9 @@ export function ReviewForm({ schools }: ReviewFormProps) {
       setErrors(errs);
       return;
     }
+    if (step === 1 && !form.displayName.trim()) {
+      patch({ displayName: generateDisplayName() });
+    }
     setErrors({});
     setStep((s) => Math.min(s + 1, TOTAL_STEPS));
   }
@@ -118,6 +377,8 @@ export function ReviewForm({ schools }: ReviewFormProps) {
       } else {
         setErrors({ submit: result.error });
       }
+    } catch {
+      setErrors({ submit: "Something went wrong. Please try again." });
     } finally {
       setSubmitting(false);
     }
@@ -132,26 +393,19 @@ export function ReviewForm({ schools }: ReviewFormProps) {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#E3F3EF]">
             <CheckCircle2 className="h-7 w-7 text-[#1DBAA5]" />
           </div>
-          <h1 className="mt-5 text-xl font-bold text-[#0F2540]">Thank you for sharing</h1>
-          <p className="mt-2 text-sm leading-relaxed text-[#667085]">
-            Your review is now pending moderation. Once approved, it will help other families
-            choose a school with real confidence.
+          <h1 className="mt-5 text-xl font-bold text-[#0F2540]">
+            Thank you for sharing your experience 🙏
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-[#667085]">
+            Your review has been received and is pending moderation. We&apos;ll notify you by email
+            once it&apos;s published — usually within 24–48 hours.
           </p>
-          <p className="mt-4 rounded-xl bg-[#F2F4F7] px-4 py-3 text-xs text-[#667085]">
-            Your name and email are never shown publicly.
-          </p>
-          <div className="mt-7 flex flex-col gap-3">
+          <div className="mt-7">
             <Link
               href="/schools"
               className="inline-flex justify-center rounded-xl bg-[#1DBAA5] px-5 py-3 text-sm font-semibold text-white"
             >
               Explore more schools
-            </Link>
-            <Link
-              href="/"
-              className="inline-flex justify-center rounded-xl border border-[#0F2540]/20 px-5 py-3 text-sm font-semibold text-[#0F2540]"
-            >
-              Back to home
             </Link>
           </div>
         </div>
@@ -159,13 +413,10 @@ export function ReviewForm({ schools }: ReviewFormProps) {
     );
   }
 
-  const selectedSchool = schools.find((s) => s.slug === form.schoolSlug) ?? null;
-
   // ─── form shell ───────────────────────────────────────────────────────────
 
   return (
     <main className="mx-auto w-full max-w-lg px-4 pb-10 pt-4 sm:px-6">
-      {/* Progress bar */}
       <div className="mb-5">
         <div className="flex items-center justify-between">
           <button
@@ -193,7 +444,7 @@ export function ReviewForm({ schools }: ReviewFormProps) {
 
       <div className="rounded-3xl bg-white p-6 shadow-sm">
 
-        {/* ── STEP 1: School & context ────────────────────────────────────── */}
+        {/* ── STEP 1 ──────────────────────────────────────────────────────── */}
         {step === 1 && (
           <div>
             <div className="mb-5 overflow-hidden rounded-2xl bg-[#E3F3EF]">
@@ -206,25 +457,60 @@ export function ReviewForm({ schools }: ReviewFormProps) {
 
             <div className="mt-6 space-y-5">
 
+              {/* School searchable input — fix #10 */}
               <fieldset>
                 <label className="block text-sm font-semibold text-[#0F2540]">
                   School <Required />
                 </label>
-                <select
-                  value={form.schoolSlug}
-                  onChange={(e) => patch({ schoolSlug: e.target.value })}
-                  className="mt-2 w-full rounded-xl border border-[#0F2540]/15 bg-white px-4 py-3 text-sm text-[#0F2540] outline-none focus:border-[#1DBAA5]"
-                >
-                  <option value="">Select a school</option>
-                  {schools.map((s) => (
-                    <option key={s.slug} value={s.slug}>
-                      {s.name} — {s.location}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative mt-2">
+                  <input
+                    ref={schoolInputRef}
+                    type="text"
+                    value={form.schoolSlug ? (selectedSchool?.name ?? schoolQuery) : schoolQuery}
+                    onChange={(e) => {
+                      setSchoolQuery(e.target.value);
+                      patch({ schoolSlug: "" });
+                      setShowSchoolList(true);
+                    }}
+                    onFocus={() => setShowSchoolList(true)}
+                    onBlur={() => setTimeout(() => setShowSchoolList(false), 150)}
+                    placeholder="Type to search for a school…"
+                    className="w-full rounded-xl border border-[#0F2540]/15 bg-white px-4 py-3 pr-10 text-sm text-[#0F2540] outline-none placeholder:text-[#667085] focus:border-[#1DBAA5]"
+                  />
+                  {form.schoolSlug && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        patch({ schoolSlug: "" });
+                        setSchoolQuery("");
+                        schoolInputRef.current?.focus();
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#667085]"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                  {showSchoolList && filteredSchools.length > 0 && (
+                    <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-[#0F2540]/10 bg-white shadow-md">
+                      {filteredSchools.map((s) => (
+                        <li key={s.slug}>
+                          <button
+                            type="button"
+                            onMouseDown={() => selectSchool(s)}
+                            className="w-full px-4 py-2.5 text-left text-sm text-[#0F2540] hover:bg-[#F2F4F7]"
+                          >
+                            <span className="font-medium">{s.name}</span>
+                            <span className="ml-2 text-xs text-[#667085]">{s.location}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
                 <FieldError msg={errors.schoolSlug} />
               </fieldset>
 
+              {/* Relationship — fix #6 */}
               <fieldset>
                 <legend className="text-sm font-semibold text-[#0F2540]">
                   Your relationship <Required />
@@ -241,7 +527,9 @@ export function ReviewForm({ schools }: ReviewFormProps) {
                           : "border-[#0F2540]/15 bg-white text-[#667085]"
                       }`}
                     >
-                      {rel === "current-parent" ? "Current parent" : "Former parent"}
+                      {rel === "current-parent"
+                        ? "My child attends this school"
+                        : "My child attended this school"}
                     </button>
                   ))}
                 </div>
@@ -281,20 +569,84 @@ export function ReviewForm({ schools }: ReviewFormProps) {
                 <FieldError msg={errors.attendancePeriod} />
               </fieldset>
 
+              {/* Nationality country selector — fix #7 */}
               <fieldset>
                 <label className="block text-sm font-semibold text-[#0F2540]">
                   Nationality{" "}
+                  <span className="font-normal text-[#667085]">(optional, max 2)</span>
+                </label>
+                <div className="relative mt-2">
+                  {selectedNats.length < 2 && (
+                    <input
+                      type="text"
+                      value={natQuery}
+                      onChange={(e) => {
+                        setNatQuery(e.target.value);
+                        setShowNatList(true);
+                      }}
+                      onFocus={() => setShowNatList(true)}
+                      onBlur={() => setTimeout(() => setShowNatList(false), 150)}
+                      placeholder="Type to search nationality…"
+                      className="w-full rounded-xl border border-[#0F2540]/15 px-4 py-3 text-sm text-[#0F2540] outline-none placeholder:text-[#667085] focus:border-[#1DBAA5]"
+                    />
+                  )}
+                  {showNatList && filteredCountries.length > 0 && (
+                    <ul className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-[#0F2540]/10 bg-white shadow-md">
+                      {filteredCountries.map((c) => (
+                        <li key={c.code}>
+                          <button
+                            type="button"
+                            onMouseDown={() => addNat(c)}
+                            className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-[#0F2540] hover:bg-[#F2F4F7]"
+                          >
+                            <span>{c.flag}</span>
+                            <span>{c.name}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                {selectedNats.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {selectedNats.map((n) => (
+                      <span
+                        key={n.code}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[#1DBAA5]/30 bg-[#E3F3EF] px-3 py-1 text-xs font-medium text-[#0F2540]"
+                      >
+                        {n.flag} {n.name}
+                        <button
+                          type="button"
+                          onClick={() => removeNat(n.code)}
+                          className="text-[#667085]"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </fieldset>
+
+              {/* Display name — fix #9 */}
+              <fieldset>
+                <label className="block text-sm font-semibold text-[#0F2540]">
+                  Your display name{" "}
                   <span className="font-normal text-[#667085]">(optional)</span>
                 </label>
+                <p className="mt-0.5 text-xs text-[#667085]">
+                  Never shown publicly. We&apos;ll generate one if left empty.
+                </p>
                 <input
                   type="text"
-                  value={form.nationality}
-                  onChange={(e) => patch({ nationality: e.target.value })}
-                  placeholder="e.g. French, Malaysian, British"
+                  value={form.displayName}
+                  onChange={(e) => patch({ displayName: e.target.value })}
+                  placeholder="e.g. FrenchMomKL, ExpatDadKL"
                   className="mt-2 w-full rounded-xl border border-[#0F2540]/15 px-4 py-3 text-sm text-[#0F2540] outline-none placeholder:text-[#667085] focus:border-[#1DBAA5]"
                 />
               </fieldset>
 
+              {/* Email with blur validation — fix #8 */}
               <fieldset>
                 <label className="block text-sm font-semibold text-[#0F2540]">
                   Email <Required />
@@ -305,7 +657,26 @@ export function ReviewForm({ schools }: ReviewFormProps) {
                 <input
                   type="email"
                   value={form.email}
-                  onChange={(e) => patch({ email: e.target.value })}
+                  onChange={(e) => {
+                    patch({ email: e.target.value });
+                    if (errors.email)
+                      setErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.email;
+                        return next;
+                      });
+                  }}
+                  onBlur={(e) => {
+                    if (
+                      e.target.value &&
+                      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)
+                    ) {
+                      setErrors((prev) => ({
+                        ...prev,
+                        email: "Please enter a valid email address.",
+                      }));
+                    }
+                  }}
                   placeholder="you@email.com"
                   className="mt-2 w-full rounded-xl border border-[#0F2540]/15 px-4 py-3 text-sm text-[#0F2540] outline-none placeholder:text-[#667085] focus:border-[#1DBAA5]"
                 />
@@ -317,7 +688,7 @@ export function ReviewForm({ schools }: ReviewFormProps) {
           </div>
         )}
 
-        {/* ── STEP 2: Strengths & frustrations ───────────────────────────── */}
+        {/* ── STEP 2 ──────────────────────────────────────────────────────── */}
         {step === 2 && (
           <div>
             <h1 className="text-xl font-bold text-[#0F2540]">Strengths & frustrations</h1>
@@ -365,7 +736,7 @@ export function ReviewForm({ schools }: ReviewFormProps) {
           </div>
         )}
 
-        {/* ── STEP 3: Criteria scores ─────────────────────────────────────── */}
+        {/* ── STEP 3 ──────────────────────────────────────────────────────── */}
         {step === 3 && (
           <div>
             <h1 className="text-xl font-bold text-[#0F2540]">Rate key areas</h1>
@@ -409,7 +780,7 @@ export function ReviewForm({ schools }: ReviewFormProps) {
           </div>
         )}
 
-        {/* ── STEP 4: Summary + consent ───────────────────────────────────── */}
+        {/* ── STEP 4 ──────────────────────────────────────────────────────── */}
         {step === 4 && (
           <div>
             <h1 className="text-xl font-bold text-[#0F2540]">Review your submission</h1>
@@ -418,19 +789,26 @@ export function ReviewForm({ schools }: ReviewFormProps) {
             </p>
 
             <div className="mt-5 space-y-4">
-              {/* Summary */}
               <div className="rounded-2xl bg-[#F2F4F7] p-4 text-sm">
                 <p className="font-semibold text-[#0F2540]">
                   {selectedSchool?.name ?? form.schoolSlug}
                 </p>
                 <p className="mt-1 text-xs text-[#667085]">
-                  {form.relationship === "current-parent" ? "Current parent" : "Former parent"}
+                  {form.relationship === "current-parent"
+                    ? "My child attends this school"
+                    : "My child attended this school"}
                   {" · "}
                   {form.childGrade}
                   {" · "}
                   {form.attendancePeriod}
                   {form.nationality ? ` · ${form.nationality}` : ""}
                 </p>
+                {form.displayName && (
+                  <p className="mt-1 text-xs text-[#667085]">
+                    Display name:{" "}
+                    <span className="font-medium text-[#0F2540]">{form.displayName}</span>
+                  </p>
+                )}
 
                 {form.strengths && (
                   <div className="mt-3">
@@ -474,13 +852,11 @@ export function ReviewForm({ schools }: ReviewFormProps) {
                 </div>
               </div>
 
-              {/* Privacy note */}
               <div className="rounded-xl border border-[#1DBAA5]/25 bg-[#E3F3EF] px-4 py-3 text-xs leading-relaxed text-[#667085]">
                 Your name and email are never shown publicly. Your review appears under an
                 anonymous context label only (e.g. &ldquo;Parent of Year 6 student&rdquo;).
               </div>
 
-              {/* Consent */}
               <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#0F2540]/15 p-4">
                 <input
                   type="checkbox"

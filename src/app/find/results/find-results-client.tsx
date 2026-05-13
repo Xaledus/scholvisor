@@ -9,7 +9,7 @@ import {
   Heart,
   Menu,
   PencilLine,
-  Scale
+  Scale,
 } from "lucide-react";
 import type { SchoolMatch } from "@/features/schools/types";
 
@@ -18,9 +18,10 @@ const MAX_COMPARE = 3;
 type FindResultsClientProps = {
   initialResults: SchoolMatch[];
   criteriaChips: string[];
+  rawParams: string;
 };
 
-export function FindResultsClient({ initialResults, criteriaChips }: FindResultsClientProps) {
+export function FindResultsClient({ initialResults, criteriaChips, rawParams }: FindResultsClientProps) {
   const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
   const [comparedSlugs, setComparedSlugs] = useState<string[]>([]);
 
@@ -81,7 +82,7 @@ export function FindResultsClient({ initialResults, criteriaChips }: FindResults
               </span>
             ))}
           </div>
-          <Link href="/find" className="mt-3 inline-flex text-xs font-semibold text-[#1DBAA5]">
+          <Link href={`/find?${rawParams}`} className="mt-3 inline-flex text-xs font-semibold text-[#1DBAA5]">
             Edit criteria
           </Link>
         </section>
@@ -118,7 +119,15 @@ export function FindResultsClient({ initialResults, criteriaChips }: FindResults
                     </button>
                   </div>
 
-                  <div className="mt-3 h-24 rounded-xl bg-gradient-to-r from-[#0F2540] via-[#1DBAA5] to-[#E3F3EF]" />
+                  {school.cover_image_url ? (
+                    <img
+                      src={school.cover_image_url}
+                      alt=""
+                      className="mt-3 h-[200px] w-full rounded-xl object-cover"
+                    />
+                  ) : (
+                    <div className="mt-3 h-[60px] rounded-xl bg-gradient-to-r from-[#1DBAA5]/70 to-[#E3F3EF]" />
+                  )}
 
                   <h3 className="mt-3 text-lg font-semibold text-[#0F2540]">{school.name}</h3>
                   <p className="text-sm text-[#667085]">
@@ -170,6 +179,16 @@ export function FindResultsClient({ initialResults, criteriaChips }: FindResults
                     >
                       View details
                     </Link>
+                    {school.website_url && school.website_url.length > 0 && (
+                      <a
+                        href={school.website_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg border border-[#0F2540]/15 px-3 py-2 text-xs font-semibold text-[#1DBAA5]"
+                      >
+                        Official website →
+                      </a>
+                    )}
                     <button
                       type="button"
                       onClick={() => toggleSave(school.slug)}
@@ -217,10 +236,10 @@ export function FindResultsClient({ initialResults, criteriaChips }: FindResults
       )}
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-[#0F2540]/10 bg-white">
-        <div className="mx-auto grid w-full max-w-2xl grid-cols-5 px-2 py-2">
+        <div className="mx-auto grid w-full max-w-2xl grid-cols-3 px-2 py-2">
           <BottomItem icon={Compass} label="Explore" active />
-          <BottomItem icon={Scale} label="Compare" />
-          <BottomItem icon={BookMarked} label="Saved" />
+          <div className="hidden" aria-hidden="true"><BottomItem icon={Scale} label="Compare" /></div>
+          <div className="hidden" aria-hidden="true"><BottomItem icon={BookMarked} label="Saved" /></div>
           <BottomItem icon={PencilLine} label="Contribute" />
           <BottomItem icon={Menu} label="Menu" />
         </div>
@@ -231,9 +250,11 @@ export function FindResultsClient({ initialResults, criteriaChips }: FindResults
 
 function EmptyResults() {
   return (
-    <section className="mt-4 rounded-2xl border border-dashed border-[#0F2540]/20 bg-[#F2F4F7] p-5 text-center">
-      <h3 className="text-base font-semibold text-[#0F2540]">No exact match found</h3>
-      <p className="mt-1 text-sm text-[#667085]">Try widening your budget or location filters.</p>
+    <section className="mt-4 rounded-2xl border border-dashed border-[#0F2540]/20 bg-[#F2F4F7] p-6 text-center">
+      <h3 className="text-base font-semibold text-[#0F2540]">No schools found for these criteria.</h3>
+      <p className="mt-2 text-sm text-[#667085]">
+        Try widening your search — we have 56 schools across KL and Selangor.
+      </p>
       <Link
         href="/find"
         className="mt-4 inline-flex rounded-xl border border-[#0F2540]/20 bg-white px-4 py-2 text-sm font-semibold text-[#0F2540]"

@@ -8,23 +8,23 @@ import type { StoredReview } from "@/features/reviews/types";
 type AdminReviewCardProps = {
   review: StoredReview;
   schoolName: string;
-  secret: string;
+  schoolSlug: string;
 };
 
-export function AdminReviewCard({ review, schoolName, secret }: AdminReviewCardProps) {
+export function AdminReviewCard({ review, schoolName, schoolSlug }: AdminReviewCardProps) {
   const [isPending, startTransition] = useTransition();
   const [isRejecting, setIsRejecting] = useState(false);
   const [reason, setReason] = useState("");
 
   function handleApprove() {
     startTransition(async () => {
-      await approveReviewAction(review.id, review.schoolSlug, secret);
+      await approveReviewAction(review.id, review.schoolSlug);
     });
   }
 
   function handleConfirmReject() {
     startTransition(async () => {
-      await rejectReviewAction(review.id, reason, secret);
+      await rejectReviewAction(review.id, reason);
       setIsRejecting(false);
       setReason("");
     });
@@ -46,6 +46,9 @@ export function AdminReviewCard({ review, schoolName, secret }: AdminReviewCardP
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-base font-bold text-[#0F2540]">{schoolName}</p>
+          {schoolName === schoolSlug && (
+            <p className="mt-0.5 text-xs text-[#667085]">slug: {schoolSlug}</p>
+          )}
           <p className="mt-0.5 text-sm text-[#667085]">
             {review.relationship === "current-parent" ? "Current parent" : "Former parent"}
             {" · "}

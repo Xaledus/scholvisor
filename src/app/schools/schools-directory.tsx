@@ -10,20 +10,27 @@ type SchoolsDirectoryProps = {
   initialSchools: School[];
 };
 
-// Derive filterable chips from actual school data.
-// Stored as "category:value" keys so AND-across-categories, OR-within works cleanly.
-function buildFilterOptions(schools: School[]) {
-  const curricula = [...new Set(schools.flatMap((s) => s.curriculum))].sort();
-  const locations = [...new Set(schools.map((s) => s.location).filter(Boolean))].sort();
-  const levels = [...new Set(schools.map((s) => s.schoolLevel))].sort();
-  const hasIslamic = schools.some((s) => s.islamicEnvironment === "Available");
+const CURRICULUM_CHIPS = [
+  "American", "Australian", "British", "Cambridge", "Chinese",
+  "French", "IB", "Islamic", "A-Levels", "IGCSE",
+];
+const LOCATION_CHIPS = [
+  "Kuala Lumpur", "Petaling Jaya", "Subang Jaya", "Shah Alam",
+  "Cyberjaya", "Putrajaya", "Kota Damansara", "Sungai Buloh",
+];
+const LEVEL_CHIPS = ["All-through", "Primary to Secondary", "Early years to Secondary"];
 
-  return [
-    ...curricula.map((v) => ({ cat: "curriculum", label: v })),
-    ...locations.map((v) => ({ cat: "location", label: v })),
-    ...levels.map((v) => ({ cat: "level", label: v })),
-    ...(hasIslamic ? [{ cat: "islamic", label: "Islamic environment" }] : []),
-  ];
+const FILTER_GROUPS = [
+  { label: "Curriculum", cat: "curriculum", chips: CURRICULUM_CHIPS },
+  { label: "Location",   cat: "location",   chips: LOCATION_CHIPS },
+  { label: "School level", cat: "level",    chips: LEVEL_CHIPS },
+] as const;
+
+function matchCurriculumChip(chip: string, school: School): boolean {
+  if (chip === "A-Levels" || chip === "IGCSE") {
+    return school.curriculum.some((c) => ["British", "Cambridge"].includes(c));
+  }
+  return school.curriculum.some((c) => c === chip);
 }
 
 function applyFilters(schools: School[], query: string, active: Set<string>): School[] {
@@ -40,7 +47,6 @@ function applyFilters(schools: School[], query: string, active: Set<string>): Sc
   }
 
   if (active.size > 0) {
-    // Group active keys by category
     const byCat: Record<string, string[]> = {};
     for (const key of active) {
       const sep = key.indexOf(":");
@@ -50,10 +56,9 @@ function applyFilters(schools: School[], query: string, active: Set<string>): Sc
     }
     result = result.filter((s) =>
       Object.entries(byCat).every(([cat, vals]) => {
-        if (cat === "curriculum") return s.curriculum.some((c) => vals.includes(c));
+        if (cat === "curriculum") return vals.some((v) => matchCurriculumChip(v, s));
         if (cat === "location") return vals.includes(s.location);
         if (cat === "level") return vals.includes(s.schoolLevel);
-        if (cat === "islamic") return s.islamicEnvironment === "Available";
         return true;
       })
     );
@@ -67,7 +72,6 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
 
-  const filterOptions = useMemo(() => buildFilterOptions(initialSchools), [initialSchools]);
   const filteredSchools = useMemo(
     () => applyFilters(initialSchools, query, activeFilters),
     [initialSchools, query, activeFilters]
@@ -83,7 +87,10 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
     });
   };
 
-  const clearFilters = () => setActiveFilters(new Set());
+  const clearAll = () => {
+    setQuery("");
+    setActiveFilters(new Set());
+  };
 
   const toggleCompare = (slug: string) => {
     setSelectedForCompare((cur) =>
@@ -94,7 +101,6 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
 
-      {/* Header */}
       <section>
         <h1 className="text-2xl font-bold text-[#0F2540]">Explore schools</h1>
         <p className="mt-2 text-sm text-[#667085]">
@@ -102,7 +108,6 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
         </p>
       </section>
 
-      {/* Search */}
       <section className="mt-5">
         <label className="flex items-center gap-3 rounded-2xl border border-[#0F2540]/15 bg-white px-4 py-3">
           <Search className="h-4 w-4 shrink-0 text-[#667085]" />
@@ -120,42 +125,44 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
         </label>
       </section>
 
-      {/* Filter chips — derived from real school data */}
-      {filterOptions.length > 0 && (
-        <section className="mt-4">
-          <div className="flex flex-wrap gap-2">
-            {filterOptions.map(({ cat, label }) => {
-              const active = activeFilters.has(`${cat}:${label}`);
-              return (
-                <button
-                  key={`${cat}:${label}`}
-                  type="button"
-                  onClick={() => toggleFilter(cat, label)}
-                  className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                    active
-                      ? "border-[#1DBAA5] bg-[#E3F3EF] text-[#0F2540]"
-                      : "border-[#0F2540]/15 bg-white text-[#667085]"
-                  }`}
-                >
-                  {active && <X className="h-2.5 w-2.5" />}
-                  {label}
-                </button>
-              );
-            })}
+      {/* Grouped filter chips */}
+      <section className="mt-5 space-y-4">
+        {FILTER_GROUPS.map(({ label, cat, chips }) => (
+          <div key={cat}>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#667085]">{label}</p>
+            <div className="flex flex-wrap gap-2">
+              {chips.map((chip) => {
+                const active = activeFilters.has(`${cat}:${chip}`);
+                return (
+                  <button
+                    key={chip}
+                    type="button"
+                    onClick={() => toggleFilter(cat, chip)}
+                    className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                      active
+                        ? "border-[#1DBAA5] bg-[#E3F3EF] text-[#0F2540]"
+                        : "border-[#0F2540]/15 bg-white text-[#667085]"
+                    }`}
+                  >
+                    {active && <X className="h-2.5 w-2.5" />}
+                    {chip}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          {activeFilters.size > 0 && (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="mt-2 text-xs font-semibold text-[#1DBAA5]"
-            >
-              Clear all filters
-            </button>
-          )}
-        </section>
-      )}
+        ))}
+        {(activeFilters.size > 0 || query) && (
+          <button
+            type="button"
+            onClick={clearAll}
+            className="text-xs font-semibold text-[#1DBAA5]"
+          >
+            Clear all filters
+          </button>
+        )}
+      </section>
 
-      {/* Result count */}
       <p className="mt-4 text-xs text-[#667085]">
         {filteredSchools.length === initialSchools.length
           ? `${initialSchools.length} school${initialSchools.length !== 1 ? "s" : ""}`
@@ -164,23 +171,24 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
 
       {filteredSchools.length === 0 ? (
         <section className="mt-4 rounded-2xl border border-dashed border-[#0F2540]/20 bg-white p-8 text-center text-sm text-[#667085]">
-          No schools match these filters.{" "}
-          {activeFilters.size > 0 && (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="font-semibold text-[#1DBAA5] underline-offset-2 hover:underline"
-            >
-              Clear filters
-            </button>
-          )}
+          {query
+            ? <>No schools found for <span className="font-semibold text-[#0F2540]">&ldquo;{query}&rdquo;</span>.</>
+            : "No schools match these filters."
+          }{" "}
+          <button
+            type="button"
+            onClick={clearAll}
+            className="font-semibold text-[#1DBAA5] underline-offset-2 hover:underline"
+          >
+            Clear
+          </button>
         </section>
       ) : (
         <>
-          {/* ── Mobile: horizontal swipe cards ─────────────────────────── */}
+          {/* Mobile: horizontal swipe */}
           <section className="md:hidden">
             <div
-              className="mt-4 flex gap-4 overflow-x-auto pb-4 -mx-4 px-4"
+              className="-mx-4 mt-4 flex gap-4 overflow-x-auto px-4 pb-4"
               style={{ scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}
             >
               {filteredSchools.map((school) => (
@@ -196,7 +204,6 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
                   />
                 </div>
               ))}
-              {/* trailing spacer so last card snaps flush left */}
               <div className="w-4 flex-none" aria-hidden />
             </div>
             {filteredSchools.length > 1 && (
@@ -206,8 +213,8 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
             )}
           </section>
 
-          {/* ── Desktop: 2-column grid ──────────────────────────────────── */}
-          <section className="mt-4 hidden md:grid md:grid-cols-2 md:gap-4">
+          {/* Desktop: 2-column grid */}
+          <section className="mt-4 hidden items-stretch md:grid md:grid-cols-2 md:gap-4">
             {filteredSchools.map((school) => (
               <SchoolCard
                 key={school.slug}
@@ -220,7 +227,6 @@ export function SchoolsDirectory({ initialSchools }: SchoolsDirectoryProps) {
         </>
       )}
 
-      {/* Compare bar — mobile */}
       {selectedForCompare.length > 0 && (
         <section className="fixed inset-x-0 bottom-0 z-30 border-t border-[#0F2540]/15 bg-white/95 px-4 py-3 backdrop-blur md:hidden">
           <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3">

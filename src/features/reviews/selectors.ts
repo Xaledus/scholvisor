@@ -25,6 +25,8 @@ export function reviewToParentInsight(review: StoredReview): ParentInsight {
     context: [review.attendancePeriod, review.nationality].filter(Boolean).join(" · "),
     quote: review.strengths || review.frustrations || "A verified parent perspective.",
     author: `${authorLabel}${review.childGrade ? `, ${review.childGrade}` : ""}`,
-    rating: avgRating
+    rating: avgRating,
+    strengths: review.strengths || undefined,
+    frustrations: review.frustrations || undefined,
   };
 }

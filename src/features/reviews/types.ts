@@ -18,6 +18,7 @@ export type ReviewFormData = {
   childGrade: string;
   attendancePeriod: string;
   nationality: string;
+  displayName: string;
   email: string;
   strengths: string;
   frustrations: string;
