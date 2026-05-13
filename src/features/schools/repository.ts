@@ -31,25 +31,25 @@ function formatTuitionRange(min: number | null, max: number | null): string {
 function rowToSchool(row: Record<string, unknown>): School {
   return {
     id: (row.id as string) ?? "",
-    slug: row.slug as string,
-    name: row.name as string,
+    slug: (row.slug as string) ?? "",
+    name: (row.name as string) ?? "",
     location: (row.city as string) ?? "",
     summary: (row.summary as string) ?? "",
     schoolLevel: (row.school_level as SchoolLevel) ?? "All-through",
     ages: (row.age_range as string) ?? "",
-    curriculum: (row.curriculum as string[]) ?? [],
-    fitTags: (row.fit_tags as string[]) ?? [],
+    curriculum: Array.isArray(row.curriculum) ? (row.curriculum as string[]) : [],
+    fitTags: Array.isArray(row.fit_tags) ? (row.fit_tags as string[]) : [],
     islamicEnvironment: (row.religious_environment as IslamicEnvironment) ?? "Not specified",
     annualTuitionRange: formatTuitionRange(
-      row.price_min as number | null,
-      row.price_max as number | null
+      (row.price_min as number | null) ?? null,
+      (row.price_max as number | null) ?? null
     ),
     rating: 0,
     reviewCount: 0,
     criteriaScores: [],
     parentInsight: (row.parent_insight as string) ?? "",
-    categories: (row.categories as string[]) ?? [],
-    criteria: (row.criteria as string[]) ?? [],
+    categories: Array.isArray(row.categories) ? (row.categories as string[]) : [],
+    criteria: Array.isArray(row.criteria) ? (row.criteria as string[]) : [],
     transportation: (row.transportation as boolean | null) ?? null,
     boarding: (row.boarding as boolean | null) ?? null,
     website_url: (row.website_url as string | null) ?? null,
@@ -101,11 +101,23 @@ class SupabaseSchoolRepository implements SchoolRepository {
     try {
       const db = createServerClient();
       const { data, error } = await db.from("schools").select("*").eq("status", "active").order("name");
-      if (error) return [];
+      if (error) {
+        console.error("[listSchools] query error:", error.message, error.details);
+        return [];
+      }
 
-      const schools: School[] = ((data ?? []) as Record<string, unknown>[]).map(rowToSchool);
+      const rows = (data ?? []) as Record<string, unknown>[];
+      const schools: School[] = [];
+      for (const row of rows) {
+        try {
+          schools.push(rowToSchool(row));
+        } catch (e) {
+          console.error("[listSchools] skipped bad row:", row.id, row.slug, e);
+        }
+      }
+      console.log("[listSchools] parsed:", schools.length, "of", rows.length);
+
       const countMap = await fetchReviewCountsBySchool();
-
       let result: School[] = schools.map((s) => ({ ...s, reviewCount: countMap.get(s.slug) ?? 0 }));
 
       if (filters?.query) {
@@ -119,7 +131,8 @@ class SupabaseSchoolRepository implements SchoolRepository {
       }
 
       return result;
-    } catch {
+    } catch (e) {
+      console.error("[listSchools] caught:", e);
       return [];
     }
   }
@@ -133,9 +146,22 @@ class SupabaseSchoolRepository implements SchoolRepository {
         .eq("status", "active")
         .eq("is_featured", true)
         .limit(limit);
-      if (error) return [];
-      return (data ?? []).map(rowToSchool);
-    } catch {
+      if (error) {
+        console.error("[listFeaturedSchools] query error:", error.message);
+        return [];
+      }
+      const rows = (data ?? []) as Record<string, unknown>[];
+      const schools: School[] = [];
+      for (const row of rows) {
+        try {
+          schools.push(rowToSchool(row));
+        } catch (e) {
+          console.error("[listFeaturedSchools] skipped bad row:", row.id, e);
+        }
+      }
+      return schools;
+    } catch (e) {
+      console.error("[listFeaturedSchools] caught:", e);
       return [];
     }
   }
@@ -144,7 +170,10 @@ class SupabaseSchoolRepository implements SchoolRepository {
     try {
       const db = createServerClient();
       const { data, error } = await db.from("schools").select("*").eq("status", "active").eq("slug", slug).single();
-      if (error || !data) return undefined;
+      if (error || !data) {
+        if (error) console.error("[getSchoolBySlug] query error:", slug, error.message);
+        return undefined;
+      }
 
       const school = rowToSchool(data as Record<string, unknown>);
 
